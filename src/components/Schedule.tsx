@@ -1,6 +1,8 @@
 import React, { useMemo, useState } from 'react'
-import { Users, Wrench, Undo2, Info, X, CalendarClock } from 'lucide-react'
+import { Users, Wrench, Undo2, Info, X, CalendarClock, UserX, Palmtree, CloudRain, Snowflake, CheckCircle2, Circle, Sparkles } from 'lucide-react'
 import { LANES, PM_VACATION } from '../data/suttons'
+import { attendanceKind } from '../data/forecast'
+import { ordersFor, isHere } from '../data/handoff'
 import { useStore, type Assign, type Status } from '../state/store'
 import { Card, Badge, Button, PMChip } from './ui'
 import { cn, PM_NAMES } from '../lib/util'
@@ -10,10 +12,20 @@ const STATUS_STYLE: Record<Status, string> = {
   CUSTOMER_CONFIRMED: 'border-info-500 bg-info-50 text-info-600',
   LOCKED: 'border-ink-800 bg-ink-100 text-ink-950',
 }
+/** Zoe's key, top-left of Future Forecast: Red - Don't Set Up · Blue - Materials Need Set Up · Black - job is running. */
 const STATUS_LABEL: Record<Status, string> = {
-  TENTATIVE: 'Tentative — customer not called',
-  CUSTOMER_CONFIRMED: 'Customer confirmed — Ashley to set up materials',
-  LOCKED: 'Locked — materials ordered',
+  TENTATIVE: "Red — Don't set up: customer not called, materials not set up",
+  CUSTOMER_CONFIRMED: 'Blue — Materials need set up: customer has the date',
+  LOCKED: 'Black — Ready to start: materials and dumpster set up',
+}
+const LEGEND: Record<Status, string> = { TENTATIVE: "Don't set up", CUSTOMER_CONFIRMED: 'Materials need set up', LOCKED: 'Ready / running' }
+
+/** The non-job cells — Future Forecast doubles as the production attendance log. */
+const ABSENCE: Record<string, { icon: any; cls: string; label: string }> = {
+  'called in': { icon: UserX, cls: 'border-danger-500 bg-danger-50/60 text-danger-700', label: 'Called in' },
+  vacation: { icon: Palmtree, cls: 'border-ink-300 bg-ink-50 text-ink-500', label: 'Vacation' },
+  weather: { icon: CloudRain, cls: 'border-info-500 bg-info-50/60 text-info-600', label: 'Weather' },
+  season: { icon: Snowflake, cls: 'border-ink-300 bg-ink-50 text-ink-400', label: 'Season done' },
 }
 const NEXT: Record<Status, Status> = {
   TENTATIVE: 'CUSTOMER_CONFIRMED', CUSTOMER_CONFIRMED: 'LOCKED', LOCKED: 'TENTATIVE',
@@ -67,7 +79,7 @@ export default function Schedule() {
             {(['TENTATIVE', 'CUSTOMER_CONFIRMED', 'LOCKED'] as Status[]).map(s => (
               <span key={s} className="flex items-center gap-1 text-ink-500">
                 <span className={cn('h-2.5 w-2.5 rounded-sm border-2', STATUS_STYLE[s])} />
-                {s === 'TENTATIVE' ? 'Red' : s === 'CUSTOMER_CONFIRMED' ? 'Blue' : 'Black'}
+                {s === 'TENTATIVE' ? 'Red' : s === 'CUSTOMER_CONFIRMED' ? 'Blue' : 'Black'} · {LEGEND[s]}
               </span>
             ))}
           </div>
@@ -169,13 +181,18 @@ export default function Schedule() {
                                   className={cn(
                                     'cursor-pointer rounded-md border-l-[3px] px-1.5 py-1 text-[11px] leading-tight transition-all',
                                     a.unavailable
-                                      ? 'border-ink-300 bg-ink-50 italic text-ink-500'
+                                      ? (ABSENCE[attendanceKind(a.raw) ?? '']?.cls ?? 'border-ink-300 bg-ink-50 italic text-ink-500')
                                       : STATUS_STYLE[a.status],
                                     previewIds.has(a.id) && drag?.id !== a.id && 'ring-2 ring-brand-300 ring-offset-1',
                                     drag?.id === a.id && 'opacity-40',
                                   )}
                                 >
+                                  {a.unavailable && ABSENCE[attendanceKind(a.raw) ?? ''] ? (() => {
+                                    const k = ABSENCE[attendanceKind(a.raw)!]
+                                    return <div className="flex items-center gap-1 not-italic"><k.icon size={10} className="shrink-0" /><span className="truncate font-medium">{k.label}</span></div>
+                                  })() : <>
                                   <div className="flex items-center gap-1">
+                                    {a.tags.includes('new') && <Sparkles size={9} className="shrink-0" />}
                                     <span className="truncate font-semibold">{a.name || a.raw}</span>
                                     {a.pm && <span className="ml-auto shrink-0 text-[9px] font-bold opacity-60">{a.pm}</span>}
                                   </div>
@@ -186,8 +203,9 @@ export default function Schedule() {
                                     </div>
                                   )}
                                   {a.tags.length > 0 && (
-                                    <div className="mt-0.5 truncate text-[9px] italic opacity-60">{a.tags.join(' · ')}</div>
+                                    <div className="mt-0.5 truncate text-[9px] italic opacity-60">{a.tags.map(t => t === 'new' ? 'new from Ready to schedule' : t).join(' · ')}</div>
                                   )}
+                                  </>}
                                 </div>
                               ))}
                             </div>
@@ -208,7 +226,8 @@ export default function Schedule() {
         <span>
           Drag a job within its own crew row to reschedule. With ripple on, every later job for
           <b className="text-ink-700"> that crew only</b> shifts by the same number of days — other crews are untouched.
-          Click any job to change its status. All {LANES.length} lanes and every cell are read from
+          Click any job to change its status. Red / blue / black are calendar stages carrying your own legend and colours;
+          called-in, vacation and weather cells come from each morning's site report. All {LANES.length} lanes and every cell are read from
           <b className="text-ink-700"> Future Forecast → Project Scheduling 2026</b>.
         </span>
       </div>
@@ -292,6 +311,8 @@ function Drawer({ a, days, onClose, onStatus, onMove, previewFor }: any) {
           )}
         </div>
 
+        {a.job && <Readiness a={a} />}
+
         <div className="mt-5">
           <div className="text-2xs font-semibold uppercase tracking-wide text-ink-500">Schedule status</div>
           <div className="mt-2 space-y-1.5">
@@ -305,7 +326,7 @@ function Drawer({ a, days, onClose, onStatus, onMove, previewFor }: any) {
             ))}
           </div>
           <div className="mt-2 text-2xs text-ink-500">
-            Replaces the red / blue / black cell colouring — the same three states, with three owners.
+            Replaces the red / blue / black font colour — the same three states, set from the checklist above instead of by memory.
           </div>
         </div>
       </div>
@@ -319,3 +340,35 @@ const Row = ({ label, children }: any) => (
     <div className="flex-1 font-medium text-ink-950">{children}</div>
   </div>
 )
+
+/** What Zoe's team checks before a job goes black — "all the materials and the dumpsters ready". */
+function Readiness({ a }: { a: Assign }) {
+  const { deliveryReq } = useStore()
+  const orders = ordersFor(a.job!)
+  const requested = Object.keys(deliveryReq).some(k => k.startsWith(`${a.job}-`))
+  const items = [
+    { label: 'Customer has the date', done: a.status !== 'TENTATIVE', sub: 'scheduling calls and locks it in — turns blue' },
+    { label: 'Special orders here', done: orders.length === 0 || orders.every(isHere),
+      sub: orders.length ? orders.map(o => `${o.vendor} · ${isHere(o) ? o.status : 'ETA ' + (o.expected ?? '—')}`).join(' · ') : 'none on this job' },
+    { label: 'Vendor delivery called to the job site', done: requested || !orders.some(o => /Jobsite/i.test(o.deliverTo ?? '')),
+      sub: 'materials sit at the vendor until scheduling asks for them' },
+    { label: 'Dumpster / dump trailer', done: a.tags.includes('dump trailer') || a.tags.includes('dumpster'),
+      sub: a.tags.includes('dump trailer') ? 'dump trailer on the cell' : 'not booked on this cell' },
+  ]
+  return (
+    <div className="mt-5">
+      <div className="text-2xs font-semibold uppercase tracking-wide text-ink-500">Before it turns black</div>
+      <div className="mt-2 space-y-1.5">
+        {items.map(i => (
+          <div key={i.label} className="flex items-start gap-2">
+            {i.done ? <CheckCircle2 size={13} className="mt-0.5 shrink-0 text-ok-600" /> : <Circle size={13} className="mt-0.5 shrink-0 text-ink-300" />}
+            <div className="min-w-0">
+              <div className={cn('text-[12px]', i.done ? 'text-ink-700' : 'font-medium text-ink-950')}>{i.label}</div>
+              <div className="truncate text-2xs text-ink-400" title={i.sub}>{i.sub}</div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}

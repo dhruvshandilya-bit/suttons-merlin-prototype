@@ -1,7 +1,8 @@
-import React from 'react'
-import { Truck, PackageOpen, Container, Users, Wrench } from 'lucide-react'
+import React, { useState } from 'react'
+import { Truck, PackageOpen, Container, Users, ChevronUp, ChevronDown, CheckCircle2, Circle, Send, CalendarCheck } from 'lucide-react'
 import { OPS_ROWS, OPS_PM_LANES, OPS_LOGISTICS } from '../data/suttons'
-import { Card, CardHead, Badge, PMChip } from './ui'
+import { useStore, DRIVERS } from '../state/store'
+import { Card, CardHead, Badge, PMChip, Button } from './ui'
 import { parseCell, cn, PM_NAMES } from '../lib/util'
 
 const PM_INITIALS: Record<string, string> = {
@@ -10,9 +11,23 @@ const PM_INITIALS: Record<string, string> = {
 }
 
 export default function OpsDay() {
+  const [sent, setSent] = useState(false)
+  const crewJobs = OPS_ROWS.filter(r => r.planA && parseCell(r.planA).job).length
   let lastBand = ''
   return (
-    <div className="grid gap-4 xl:grid-cols-[1fr_400px]">
+    <div className="space-y-3">
+    <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-2.5">
+      <CalendarCheck size={15} className="shrink-0 text-brand-400" />
+      <div className="flex-1 text-2xs text-brand-500">
+        <b>Built from the schedule for the next workday.</b> On Friday, scheduling copies Monday's jobs from Future Forecast into a new
+        Operations Master tab by hand — here the board already knows. Sending the day plan puts each job's work order on the crew's and PM's phone,
+        in place of Brie's email per job.
+      </div>
+      {sent
+        ? <Badge tone="ok"><CheckCircle2 size={10} /> Work orders sent to {crewJobs} crews and 7 PMs</Badge>
+        : <Button size="sm" onClick={() => setSent(true)}><Send size={11} /> Send day plan</Button>}
+    </div>
+    <div className="grid gap-4 xl:grid-cols-[1fr_420px]">
       <Card className="overflow-hidden">
         <CardHead title="Crew assignments" sub="Thursday 28 August 2026 — from Operations Master" />
         <div className="max-h-[calc(100vh-260px)] overflow-auto">
@@ -68,7 +83,7 @@ export default function OpsDay() {
 
       <div className="space-y-4">
         <Card>
-          <CardHead title="Project manager routes" sub="7 PMs — the columns on their day board" />
+          <CardHead title="Project manager routes" sub="From the PM initials on each job — PMs never filled their column, so nobody has to" />
           <div className="divide-y divide-line">
             {OPS_PM_LANES.map(l => (
               <div key={l.name} className="px-4 py-2.5">
@@ -94,21 +109,7 @@ export default function OpsDay() {
           </div>
         </Card>
 
-        <Card>
-          <CardHead title="Pick-ups & deliveries" sub="Becomes PO delivery mode, not a spreadsheet block" />
-          <div className="divide-y divide-line">
-            {OPS_LOGISTICS.pickups.map((p, i) => (
-              <div key={i} className="flex gap-2 px-4 py-2 text-2xs text-ink-600">
-                <PackageOpen size={12} className="mt-0.5 shrink-0 text-warn-600" /><span>{p}</span>
-              </div>
-            ))}
-            {OPS_LOGISTICS.deliveries.map((p, i) => (
-              <div key={i} className="flex gap-2 px-4 py-2 text-2xs text-ink-600">
-                <Truck size={12} className="mt-0.5 shrink-0 text-info-500" /><span>{p}</span>
-              </div>
-            ))}
-          </div>
-        </Card>
+        <WarehouseRun />
 
         {OPS_LOGISTICS.trailers.length > 0 && (
           <Card>
@@ -126,5 +127,54 @@ export default function OpsDay() {
         )}
       </div>
     </div>
+    </div>
+  )
+}
+
+/**
+ * The bottom of Operations Master — "Carpenter pick-ups and Sutton's deliveries".
+ * Scheduling enters it; the warehouse manager reorders by importance and picks
+ * the driver; the driver checks each line off. Merlin's shipment states:
+ * Pending → Dispatched → Delivered.
+ */
+function WarehouseRun() {
+  const { run, moveRun, setDriver, toggleRun } = useStore()
+  const done = run.filter(r => r.done).length
+  return (
+    <Card>
+      <CardHead title="Warehouse run" sub="Warehouse manager sets the order and the driver · driver checks off from the phone"
+        right={<span className="tnum text-2xs text-ink-500">{done}/{run.length} delivered</span>} />
+      <div className="divide-y divide-line">
+        {run.map((r, i) => {
+          const status = r.done ? 'Delivered' : r.driver ? 'Dispatched' : 'Pending'
+          return (
+            <div key={r.id} className={cn('flex items-start gap-2 px-3 py-2', r.done && 'bg-ok-50/40')}>
+              <div className="flex shrink-0 flex-col">
+                <button onClick={() => moveRun(r.id, -1)} disabled={i === 0} className="text-ink-300 hover:text-ink-700 disabled:opacity-30"><ChevronUp size={12} /></button>
+                <button onClick={() => moveRun(r.id, 1)} disabled={i === run.length - 1} className="text-ink-300 hover:text-ink-700 disabled:opacity-30"><ChevronDown size={12} /></button>
+              </div>
+              <span className="mt-0.5 w-4 shrink-0 tnum text-2xs text-ink-400">{i + 1}</span>
+              <button onClick={() => toggleRun(r.id)} className="mt-0.5 shrink-0">
+                {r.done ? <CheckCircle2 size={14} className="text-ok-600" /> : <Circle size={14} className="text-ink-300" />}
+              </button>
+              <div className="min-w-0 flex-1">
+                <div className={cn('flex gap-1.5 text-2xs', r.done ? 'text-ink-400 line-through' : 'text-ink-700')}>
+                  {r.kind === 'delivery' ? <Truck size={11} className="mt-0.5 shrink-0 text-info-500" /> : <PackageOpen size={11} className="mt-0.5 shrink-0 text-warn-600" />}
+                  <span>{r.text}</span>
+                </div>
+                <div className="mt-1 flex items-center gap-1.5">
+                  <select value={r.driver ?? ''} onChange={e => setDriver(r.id, e.target.value)}
+                    className="h-6 rounded border border-line bg-white px-1 text-[10px] text-ink-600">
+                    <option value="" disabled>{r.kind === 'pickup' ? 'Carpenter picks up' : 'Assign driver…'}</option>
+                    {DRIVERS.map(d => <option key={d}>{d}</option>)}
+                  </select>
+                  <Badge tone={status === 'Delivered' ? 'ok' : status === 'Dispatched' ? 'info' : 'neutral'}>{status}</Badge>
+                </div>
+              </div>
+            </div>
+          )
+        })}
+      </div>
+    </Card>
   )
 }

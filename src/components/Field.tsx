@@ -4,6 +4,8 @@ import {
   FileText, Truck, Trash2, ExternalLink, DollarSign, Clock,
 } from 'lucide-react'
 import { cn } from '../lib/util'
+import { ReportForm } from './DailyReports'
+import type { DayJob } from '../data/daily'
 
 /** The Starrick 1401-26 carpenter folder, as a phone screen. */
 const JOB = {
@@ -18,19 +20,27 @@ const JOB = {
   note: 'Please call Ted on your way out',
   links: ['GAF Roofing (English)', 'GAF Roofing (Spanish)', 'EPDM (video)', 'Royal Siding (English)', 'Provia — scan QR on box'],
 }
+/** Work-order steps from the DRE process flow. `photo` = Photo Required on the step. */
 const STEPS = [
   { name: 'Check in with project manager', done: true },
-  { name: 'Remove existing door and frame', done: true },
+  { name: 'Remove existing door and frame', done: true, photo: true },
   { name: 'Dry fit new Provia entry door', done: false },
-  { name: 'Set, shim and fasten frame', done: false },
+  { name: 'Set, shim and fasten frame', done: false, photo: true },
   { name: 'Insulate and trim out', done: false },
   { name: 'Install storm door', done: false },
-  { name: 'Final clean-up and photos', done: false },
+  { name: 'Final clean-up and photos', done: false, photo: true },
 ]
+
+/** Today's daily log for this job — the same site reports the office sees on Projects → Daily Logs. */
+const FIELD_JOB: DayJob = {
+  jobNo: '1401-26', name: 'Starrick', customer: 'Starrick, Ted', pm: 'AC', phases: ['DRE'],
+  crew: ['Brian Wanger'], starts: true, tags: [],
+  deliveries: [{ key: 'f-wh', text: 'Provia entry door — pick up from the warehouse (verified 8/19)', source: 'warehouse' }],
+}
 
 export default function Field() {
   const [steps, setSteps] = useState(STEPS)
-  const [tab, setTab] = useState<'work' | 'photos' | 'chat'>('work')
+  const [tab, setTab] = useState<'work' | 'log' | 'photos' | 'chat'>('work')
   const done = steps.filter(s => s.done).length
 
   return (
@@ -71,11 +81,11 @@ export default function Field() {
 
         {/* tabs */}
         <div className="flex border-b border-line">
-          {(['work', 'photos', 'chat'] as const).map(t => (
+          {(['work', 'log', 'photos', 'chat'] as const).map(t => (
             <button key={t} onClick={() => setTab(t)}
               className={cn('flex-1 py-2.5 text-[12px] font-medium capitalize',
                 tab === t ? 'border-b-2 border-brand-400 text-brand-400' : 'text-ink-500')}>
-              {t === 'work' ? 'Work' : t === 'photos' ? 'Photos' : 'Chat'}
+              {t === 'work' ? 'Work order' : t === 'log' ? 'Daily log' : t === 'photos' ? 'Gallery' : 'Chat'}
             </button>
           ))}
         </div>
@@ -99,7 +109,8 @@ export default function Field() {
                       {s.done
                         ? <CheckCircle2 size={16} className="mt-px shrink-0 text-ok-600" />
                         : <Circle size={16} className="mt-px shrink-0 text-ink-300" />}
-                      <span className={cn('text-[12.5px]', s.done ? 'text-ink-400 line-through' : 'text-ink-800')}>{s.name}</span>
+                      <span className={cn('flex-1 text-[12.5px]', s.done ? 'text-ink-400 line-through' : 'text-ink-800')}>{s.name}</span>
+                      {s.photo && <span className="flex shrink-0 items-center gap-0.5 rounded bg-brand-50 px-1 text-[9px] font-medium text-brand-400"><Camera size={9} /> Photo required</span>}
                     </button>
                   ))}
                 </div>
@@ -128,6 +139,8 @@ export default function Field() {
             </div>
           )}
 
+          {tab === 'log' && <ReportForm j={FIELD_JOB} />}
+
           {tab === 'photos' && (
             <div className="space-y-3">
               <button className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-ink-300 bg-white py-8 text-[13px] font-medium text-ink-600">
@@ -140,7 +153,9 @@ export default function Field() {
                   </div>
                 ))}
               </div>
-              <div className="text-[11px] text-ink-500">Replaces the CompanyCam link in the folder email.</div>
+              <div className="text-[11px] text-ink-500">
+                Before & After gallery — every site-report and work-order photo lands here. Replaces the CompanyCam link in the folder email.
+              </div>
             </div>
           )}
 

@@ -29,9 +29,12 @@ export type Job = {
   serviceType: string; customer: string; jobNo: string; jobType: string
   sales: string; estimator: string; contractDate: string; contract: number
   balance: number; dateEstimated: string | null; estCost: number | null
+  /** The estimator's "paperwork's in" marker: $0.01, or their initials, in Estimated Cost. */
+  costPlaceholder: string | null
   estGP: number | null; estStart: string | null; so: string | null
   notes: string | null; pm: string | null; zone: string | null
   permit: string | null; payments: string | null; financing: string | null
+  missing: string | null; costToDate: number | null; pctComplete: number | null
   bucket: Bucket
 }
 export type Bucket = 'JNS' | 'WIP' | 'AR' | 'Callback' | 'Punchlist' | 'Legal' | 'Cancelled' | 'Closed'
@@ -40,11 +43,15 @@ const toJob = (r: any, bucket: Bucket): Job => ({
   serviceType: r['Service Type'], customer: r['Customer'], jobNo: r['Job #'],
   jobType: r['Job Type'], sales: r['Sales'], estimator: r['Estimator'],
   contractDate: r['Contract Date'], contract: r['Contract$'] ?? 0, balance: r['Balance Due'] ?? 0,
-  dateEstimated: r['Date Estimated'] ?? null, estCost: r['Estimated Cost'] ?? null,
-  estGP: r['Estimated GP'] ?? null, estStart: r['Estimated Start Date'] ?? null,
+  dateEstimated: r['Date Estimated'] ?? null,
+  estCost: typeof r['Estimated Cost'] === 'number' && r['Estimated Cost'] !== 0.01 ? r['Estimated Cost'] : null,
+  costPlaceholder: r['Estimated Cost'] === 0.01 ? '$0.01' : typeof r['Estimated Cost'] === 'string' ? r['Estimated Cost'] : null,
+  estGP: typeof r['Estimated GP'] === 'number' ? r['Estimated GP'] : null, estStart: r['Estimated Start Date'] ?? null,
   so: r['S.O. Items Y/N'] ?? null, notes: r['Notes'] ?? null,
   pm: r['Project Manager'] ?? null, zone: r['Zone'] ?? null, permit: r['Permit Status'] ?? null,
   payments: r['Start / Progress Payments'] ?? null, financing: r['Financing Info'] ?? null,
+  missing: r['Missing Paperwork'] ?? null, costToDate: r['Cost to Date'] ?? null,
+  pctComplete: typeof r['Percent Complete'] === 'number' ? r['Percent Complete'] : null,
   bucket,
 })
 

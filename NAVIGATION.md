@@ -118,7 +118,8 @@ Left list, click through top to bottom:
 
 - **Left:** crew assignments by band, with start times, Plan A, and Plan B in amber.
 - **Right, top:** the **7 PM routes** — Adam Shryock, Brian Farley, Abelardo Cortez, Hector Ventura, Jordan Chapman, Joshua Phillips, Richard Doering, with stop counts.
-- **Right, middle:** pick-ups (amber) and deliveries (blue) — their carpenter pick-up and Sutton's delivery blocks.
+- **Top banner:** the board is built from the schedule — **Send day plan** replaces Brie's email per job.
+- **Right, middle:** the **warehouse run** — Sutton's deliveries and carpenter pick-ups. Reorder with the arrows, assign a driver, tick off. Pending → Dispatched → Delivered.
 - **Right, bottom:** equipment — Dump Trailer #1/#2/#3 and Equipter #1, each with its current job. *Reconcile with AssetTiger.*
 
 ---
@@ -179,6 +180,42 @@ Right side: the 11-value schedule-type enum, all 11 business rules, and the **am
 
 ---
 
+## 11 · Operations → Ready to schedule — *the end of the $0.01*
+
+**Replaces:** the penny (or the estimator's initials) in Estimated Cost, Brie re-keying cost into QuickBooks, and the email to scheduling.
+
+1. The three-step strip: **Costing in progress 29 → Ready to schedule 22 → Scheduled 18**, read from Job Status.
+2. Each card: estimate, GP, missing paperwork, every special-order PO with status or ETA, and **earliest start** — the later of
+   the crew backlog for that trade and the vendor's ETA.
+3. Four jobs show the real placeholder from the sheet (`DP`, `GM`, `$0.01`) with a line explaining what it means today.
+4. **Plug in** → pick a crew lane in the right trade and a day → **Put on the board**. It lands on Schedule in red.
+   Then **Call for delivery** appears on any PO still *Ready at Vendor*.
+5. The **bell** (top right) holds the Estimate Approved notifications that started this — click one to come here.
+
+## 12 · Jobs → Daily Logs — *what replaces the PM columns and CompanyCam*
+
+1. Five tiles: site reports in, personnel on site, jobs missing required photos, deliveries missed, impacts.
+2. **Combined Daily Logs** — every job with a crew on it on the day board, with Morning / Evening status.
+3. Click a job → **Morning** report: who's on site (on site / called in / off), *before work starts* photo, and on day 1 the
+   *pre-existing damage* photo. Submit stays disabled until they're done.
+4. **Evening** report: deliveries due (from the POs and the warehouse run) → received / received some / missed, impacts
+   (weather delay), *end of day* photo, notes for tomorrow.
+5. The same form is the **Daily log** tab in the field app.
+
+## 13 · Ask AI — *Project Forecasting without a screen*
+
+Top-right **Ask AI** → *"How many weeks out are we, by project type?"* — the Project Forecasting tab's formula, live. Change a
+jobs/week number and the dates move. Types inside a seasonal blackout get pushed past it. **Draft the monthly company-wide email**
+shows a draft; nothing sends until you press send. Also try *"Which costed jobs are ready to schedule?"* and
+*"Give me today's field report across all jobs"* after submitting a report.
+
+## 14 · Finance → Budget — *estimated vs actual*
+
+WIP jobs with budget = estimated cost. Actual to date is blank because Sutton's never fills Cost to Date in the sheet — that's the
+point. The right-hand card is Zoe's 2×4 example (marked *Example*).
+
+---
+
 ## Suggested 10-minute demo order
 
 | | Screen | Line |
@@ -190,3 +227,6 @@ Right side: the 11-value schedule-type enum, all 11 business rules, and the **am
 | 5 | Materials → Purchase | *"Your Thursday emails, with acknowledgement."* |
 | 6 | Field app preview | *"The carpenter folder, on the phone."* |
 | 7 | Jobs → Job Packet | *"Every document you make for a job — and the two you haven't sent us."* |
+
+**For Zoe's follow-up (after the 23 Oct call):** Ready to schedule → plug a job in → Schedule (it's red; open it, show *Before it
+turns black*) → Day Board (*Send day plan*, warehouse run) → Daily Logs (fill a morning report) → Ask AI (*weeks out*).

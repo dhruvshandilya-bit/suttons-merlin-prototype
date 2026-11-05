@@ -3,7 +3,7 @@ import {
   BarChart3, Table2, ArrowLeftRight, Wallet, Box, LayoutList,
   CalendarDays, Mail, Settings, Smartphone, PanelLeft,
 } from 'lucide-react'
-import { StoreProvider } from './state/store'
+import { StoreProvider, useStore } from './state/store'
 import {
   SideSection, SideItem, TopNav, GlobalBar, PageHeader, StatusTabs,
   RightRail, UserBlock, AppStoreRow,
@@ -20,6 +20,11 @@ import Setup from './components/Setup'
 import Inbox from './components/Inbox'
 import Documents from './components/Documents'
 import Phases from './components/Phases'
+import AskAI from './components/AskAI'
+import Notifications from './components/Notifications'
+import ReadyQueue from './components/ReadyQueue'
+import DailyReports from './components/DailyReports'
+import Budget from './components/Budget'
 
 /**
  * Information architecture mirrors app.merlinai.co exactly:
@@ -31,15 +36,15 @@ const MODULES: { key: Mod; label: string; icon: any; group: 'MAIN' | 'COMMUNICAT
   { key: 'sales',      label: 'Sales',      icon: BarChart3,     group: 'MAIN', landing: 'Dashboard',
     tabs: ['Dashboard', 'Leads', 'Accounts', 'Opportunity', 'Estimate', 'Change Order', 'Configuration'] },
   { key: 'jobs',       label: 'Jobs',       icon: Table2,        group: 'MAIN', landing: 'Home',
-    tabs: ['Home', 'Project Phases', 'Job Packet', 'Tasks', 'Services', 'Project Templates'] },
+    tabs: ['Home', 'Project Phases', 'Daily Logs', 'Job Packet', 'Tasks', 'Services', 'Project Templates'] },
   { key: 'materials',  label: 'Materials',  icon: ArrowLeftRight, group: 'MAIN', landing: 'Purchase',
     tabs: ['Inventory', 'Purchase', 'Requisitions', 'Procure', 'Shopping List', 'Reports'] },
-  { key: 'finance',    label: 'Finance',    icon: Wallet,        group: 'MAIN', landing: 'Receivables',
-    tabs: ['Receivables', 'Payables', 'Budget', 'Reports'] },
+  { key: 'finance',    label: 'Finance',    icon: Wallet,        group: 'MAIN', landing: 'Budget',
+    tabs: ['Receivable', 'Payable', 'Budget', 'Report'] },
   { key: 'orders',     label: 'Orders',     icon: Box,           group: 'MAIN', landing: 'Orders',
     tabs: ['Orders', 'Shipping', 'Delivery Drivers', 'Price Management'] },
   { key: 'operations', label: 'Operations', icon: LayoutList,    group: 'MAIN', landing: 'Schedule',
-    tabs: ['Dashboard', 'Schedule', 'Day Board', 'Work Orders', 'Templates'] },
+    tabs: ['Dashboard', 'Ready to schedule', 'Schedule', 'Day Board', 'Work Orders', 'Templates'] },
   { key: 'calendar',   label: 'Calendar',   icon: CalendarDays,  group: 'COMMUNICATION', landing: 'Crew calendar', tabs: ['Crew calendar'] },
   { key: 'emails',     label: 'Emails',     icon: Mail,          group: 'COMMUNICATION', landing: 'Recurring', tabs: ['Recurring', 'Notification matrix'] },
 ]
@@ -50,6 +55,8 @@ function Shell() {
   const [mod, setMod] = useState<Mod>('jobs')
   const [tab, setTab] = useState('Home')
   const [mobile, setMobile] = useState(false)
+  const [panel, setPanel] = useState<'ask' | 'bell' | null>(null)
+  const { notifs } = useStore()
   const m = MODULES.find(x => x.key === mod)
 
   const go = (k: Mod) => {
@@ -98,7 +105,7 @@ function Shell() {
           {mod === 'settings'
             ? <TopNav items={['Org setup', 'Per Module', 'Organization Level']} value={tab} onChange={setTab} />
             : <TopNav items={m!.tabs} value={tab} onChange={setTab} />}
-          <GlobalBar />
+          <GlobalBar onAsk={() => setPanel('ask')} onBell={() => setPanel('bell')} unread={notifs.filter(n => !n.read).length} />
         </header>
 
         <div className="flex min-h-0 flex-1">
@@ -108,6 +115,8 @@ function Shell() {
           <RightRail />
         </div>
       </main>
+      {panel === 'ask' && <AskAI onClose={() => setPanel(null)} />}
+      {panel === 'bell' && <Notifications onClose={() => setPanel(null)} onOpenJob={() => { setMod('operations'); setTab('Ready to schedule') }} />}
     </div>
   )
 }
@@ -122,6 +131,7 @@ function Route({ mod, tab }: { mod: Mod; tab: string }) {
   // Jobs
   if (mod === 'jobs' && tab === 'Home') return <Jobs />
   if (mod === 'jobs' && tab === 'Project Phases') return <Phases />
+  if (mod === 'jobs' && tab === 'Daily Logs') return <Page title="Daily Logs" sub="Morning and evening site reports for every job on the board — replaces Operations Master's PM columns and the CompanyCam habit"><DailyReports /></Page>
   if (mod === 'jobs' && tab === 'Job Packet') return <Page title="Job packet" sub="The 11 per-job documents"><Documents /></Page>
   if (mod === 'jobs') return <Stub title={tab} module="Jobs" />
 
@@ -129,9 +139,14 @@ function Route({ mod, tab }: { mod: Mod; tab: string }) {
   if (mod === 'materials' && (tab === 'Purchase' || tab === 'Procure')) return <Page title="Purchase orders" sub="Special Order Materials + the weekly vendor emails"><Procurement /></Page>
   if (mod === 'materials') return <Stub title={tab} module="Materials" />
 
+  // Finance
+  if (mod === 'finance' && tab === 'Budget') return <Page title="Project actuals" sub="Estimated cost becomes the budget; actual cost accrues from bills"><Budget /></Page>
+  if (mod === 'finance') return <Stub title={tab} module="Finance" />
+
   // Operations
+  if (mod === 'operations' && tab === 'Ready to schedule') return <Page title="Ready to schedule" sub="Estimate approved → scheduling — replaces the $0.01 placeholder and the email to Brie"><ReadyQueue /></Page>
   if (mod === 'operations' && tab === 'Schedule') return <Page title="Schedule" sub="Future Forecast — crew lanes, red/blue/black, same-crew ripple"><Schedule /></Page>
-  if (mod === 'operations' && tab === 'Day Board') return <Page title="Day board" sub="Operations Master — 28 August 2026"><OpsDay /></Page>
+  if (mod === 'operations' && tab === 'Day Board') return <Page title="Day board" sub="Operations Master — built from the schedule for the next workday, not copied"><OpsDay /></Page>
   if (mod === 'operations') return <Stub title={tab} module="Operations" />
 
   if (mod === 'emails') return <Page title="Emails" sub="The six recurring emails"><Inbox /></Page>

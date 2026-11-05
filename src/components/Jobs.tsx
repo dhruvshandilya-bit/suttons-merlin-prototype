@@ -4,6 +4,7 @@ import { JOBS, type Job } from '../data/suttons'
 import { Card, Th, Td, Badge, PMChip, Empty, Button } from './ui'
 import { PageHeader, StatusTabs, TableCard } from './shell'
 import { money, pct, shortDate, cn } from '../lib/util'
+import { stageOf, STAGE_LABEL } from '../data/handoff'
 
 const BUCKETS = ['JNS', 'WIP', 'AR', 'Callback', 'Punchlist', 'Legal', 'Cancelled', 'Closed'] as const
 const LABEL: Record<string, string> = {
@@ -21,11 +22,11 @@ export default function Jobs() {
   const rows = useMemo(() => JOBS.filter(j =>
     j.bucket === bucket &&
     (svc === 'All' || j.serviceType === svc) &&
-    (!onlyUncosted || !j.estCost) &&
+    (!onlyUncosted || (!j.estCost && !j.costPlaceholder)) &&
     (!q || `${j.customer} ${j.jobNo} ${j.jobType} ${j.sales} ${j.estimator}`.toLowerCase().includes(q.toLowerCase()))
   ), [bucket, svc, q, onlyUncosted])
 
-  const uncosted = JOBS.filter(j => j.bucket === bucket && !j.estCost).length
+  const uncosted = JOBS.filter(j => j.bucket === bucket && !j.estCost && !j.costPlaceholder).length
 
   return (
     <>
@@ -65,6 +66,7 @@ export default function Jobs() {
                 <Th>Sales / Estimator</Th><Th className="text-right">Contract</Th>
                 <Th className="text-right">Balance</Th><Th className="text-right">Est. cost</Th>
                 <Th className="text-right">GP</Th><Th>Zone</Th><Th>Permit</Th><Th>S.O.</Th>
+                {bucket === 'JNS' && <Th>Stage</Th>}
               </tr>
             </thead>
             <tbody>
@@ -84,7 +86,9 @@ export default function Jobs() {
                   <Td className="text-right tnum">{money(j.contract)}</Td>
                   <Td className="text-right tnum">{money(j.balance)}</Td>
                   <Td className={cn('text-right tnum', !j.estCost && 'text-warn-700')}>
-                    {j.estCost ? money(j.estCost) : <Badge tone="warn">not costed</Badge>}
+                    {j.estCost ? money(j.estCost)
+                      : j.costPlaceholder ? <Badge tone="brand" className="whitespace-nowrap">“{j.costPlaceholder}” placeholder</Badge>
+                      : <Badge tone="warn">not costed</Badge>}
                   </Td>
                   <Td className={cn('text-right tnum font-medium',
                     j.estGP == null ? 'text-ink-400' : j.estGP >= 0.425 ? 'text-ok-600' : j.estGP >= 0.385 ? 'text-warn-700' : 'text-danger-600')}>
@@ -99,6 +103,11 @@ export default function Jobs() {
                     )}
                   </Td>
                   <Td className="text-2xs">{j.so && <Badge tone={j.so.includes('All Here') ? 'ok' : 'info'}>{j.so}</Badge>}</Td>
+                  {bucket === 'JNS' && (
+                    <Td className="whitespace-nowrap">
+                      <Badge tone={stageOf(j) === 'costing' ? 'warn' : stageOf(j) === 'ready' ? 'brand' : 'ok'}>{STAGE_LABEL[stageOf(j)]}</Badge>
+                    </Td>
+                  )}
                 </tr>
               ))}
             </tbody>

@@ -1,13 +1,15 @@
 import React, { useMemo, useState } from 'react'
 import { Building2, Calendar, MapPin, Briefcase, Hash, AlertCircle } from 'lucide-react'
 import { JOBS, type Bucket } from '../data/suttons'
+import { stageOf } from '../data/handoff'
 import { PageHeader, StatusTabs } from './shell'
 import { Badge, Button, PMChip } from './ui'
 import { money, shortDate, cn } from '../lib/util'
 
 /** The Project Phases kanban — matching the live board, with the missing columns added. */
-const COLS: { key: Bucket; label: string; color: string; live: boolean }[] = [
+const COLS: { key: Bucket | 'READY'; label: string; color: string; live: boolean }[] = [
   { key: 'JNS', label: 'JNS', color: 'bg-brand-400', live: true },
+  { key: 'READY', label: 'Ready to schedule', color: 'bg-brand-300', live: false },
   { key: 'WIP', label: 'WIP', color: 'bg-info-500', live: true },
   { key: 'AR', label: 'AR', color: 'bg-warn-500', live: false },
   { key: 'Punchlist', label: 'Punchlist', color: 'bg-brand-300', live: false },
@@ -21,7 +23,11 @@ export default function Phases() {
   const [board, setBoard] = useState('Project Phases')
   const byCol = useMemo(() => {
     const m = new Map<string, typeof JOBS>()
-    JOBS.forEach(j => m.set(j.bucket, [...(m.get(j.bucket) ?? []), j]))
+    JOBS.forEach(j => {
+      // estimate approved, no start date yet — the column that replaces the $0.01
+      const k = j.bucket === 'JNS' && stageOf(j) === 'ready' ? 'READY' : j.bucket
+      m.set(k, [...(m.get(k) ?? []), j])
+    })
     return m
   }, [])
 
@@ -52,8 +58,8 @@ export default function Phases() {
         <AlertCircle size={14} className="mt-0.5 shrink-0 text-warn-700" />
         <div className="text-2xs text-warn-700">
           Production has only <b>JNS</b>, <b>WIP</b> and <b>Completed w/Balance</b> — plus two strays,
-          <b> Exterior</b> and <b> AOB</b>, which are service types not phases. The six columns marked
-          <span className="mx-1 rounded bg-white px-1 font-semibold">to add</span> below are missing today.
+          <b> Exterior</b> and <b> AOB</b>, which are service types not phases. The seven columns marked
+          <span className="mx-1 rounded bg-white px-1 font-semibold">to add</span> below are missing today — each is a row in Phase Config, not a build.
         </div>
       </div>
 
@@ -82,7 +88,7 @@ export default function Phases() {
                     <div className="mt-2 flex items-center gap-1.5">
                       <span className="tnum text-2xs font-medium text-ink-700">{money(j.contract)}</span>
                       {j.balance > 0 && <Badge tone="warn">{money(j.balance)} due</Badge>}
-                      {!j.estCost && <Badge tone="danger">not costed</Badge>}
+                      {!j.estCost && !j.costPlaceholder && <Badge tone="danger">not costed</Badge>}
                     </div>
                   </div>
                 ))}

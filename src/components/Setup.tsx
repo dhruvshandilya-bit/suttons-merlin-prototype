@@ -1,6 +1,8 @@
 import React from 'react'
-import { Check, AlertTriangle } from 'lucide-react'
+import { Check, AlertTriangle, Plus } from 'lucide-react'
 import { PHASES, VENDORS, SUBS, PEOPLE, RULES, SCHEDULE_TYPES, LANES, COUNTERS } from '../data/suttons'
+import { FORECAST_TYPES } from '../data/forecast'
+import { PHOTO_RULES } from '../data/daily'
 import { Card, CardHead, Badge } from './ui'
 import { money, pct } from '../lib/util'
 
@@ -17,6 +19,16 @@ export default function Setup() {
     { n: 8, label: 'Schedule item types', value: `${SCHEDULE_TYPES.length} values`, note: 'separates work from logistics' },
     { n: 9, label: 'PO counter', value: `PO-SUT-${COUNTERS.po}`, note: 'continued, not restarted' },
     { n: 10, label: 'Job counter', value: `${COUNTERS.job}-26`, note: 'continued, not restarted' },
+  ]
+  /** From the 23 Oct operations call — each is a setting on the org, not a build. */
+  const fromCall = [
+    { label: 'Project phase: Ready to schedule', value: 'Phase Config', note: 'between JNS and WIP — replaces the $0.01 in Estimated Cost' },
+    { label: 'Estimate Approved → scheduling', value: 'Brianne D. · Zoe P.', note: 'notification recipients — in-app, push and email, with the special orders' },
+    { label: 'Morning site report', value: '3 questions', note: "who's on site (with absence reason) · start-of-day photo · pre-existing damage on day 1" },
+    { label: 'Evening site report', value: '4 questions', note: 'deliveries due from the POs · impacts · end-of-day photo · notes for tomorrow' },
+    { label: 'Calendar stages', value: 'Red · Blue · Black', note: "Don't set up · Materials need set up · Ready / running — Zoe's key, her colours" },
+    { label: 'Delivery drivers', value: 'Warehouse run', note: 'warehouse manager orders the run and assigns the driver' },
+    { label: 'Ask AI: forecasting inputs', value: `${FORECAST_TYPES.length} project types`, note: 'jobs per week + seasonal blackouts, from the Project Forecasting tab' },
   ]
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_360px]">
@@ -36,9 +48,43 @@ export default function Setup() {
             </div>
           ))}
         </div>
+        <div className="border-t border-line bg-ink-50 px-4 py-2 text-2xs font-semibold uppercase tracking-wide text-ink-500">Added after the 23 Oct operations call</div>
+        <div className="divide-y divide-line">
+          {fromCall.map(b => (
+            <div key={b.label} className="flex items-center gap-3 px-4 py-2.5">
+              <span className="grid h-6 w-6 shrink-0 place-items-center rounded-md bg-brand-50 text-brand-400 ring-1 ring-inset ring-brand-200">
+                <Plus size={12} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="text-[13px] font-medium text-ink-950">{b.label}</div>
+                <div className="text-2xs text-ink-500">{b.note}</div>
+              </div>
+              <span className="shrink-0 text-[12px] font-semibold text-ink-950">{b.value}</span>
+            </div>
+          ))}
+        </div>
       </Card>
 
       <div className="space-y-4">
+        <Card>
+          <CardHead title="Project forecasting inputs" sub="What Ask AI divides by — Zoe re-sets jobs per week monthly" />
+          <div className="space-y-1 px-4 py-3 text-2xs">
+            {FORECAST_TYPES.map(t => (
+              <div key={t.type} className="flex justify-between gap-3">
+                <span className="text-ink-500">{t.type}{t.blackout && <span className="ml-1 text-info-600">· off {t.blackout.start.slice(5)} → {t.blackout.end.slice(5)}</span>}</span>
+                <span className="tnum font-medium text-ink-950">{t.perWeek}/wk</span>
+              </div>
+            ))}
+          </div>
+        </Card>
+
+        <Card>
+          <CardHead title="Photo rules" sub="Required fields on the site reports" />
+          <div className="flex flex-wrap gap-1.5 p-4">
+            {PHOTO_RULES.map(p => <Badge key={p.key} tone={p.required === 'always' ? 'brand' : 'neutral'}>{p.label}</Badge>)}
+          </div>
+        </Card>
+
         <Card>
           <CardHead title="Schedule item types" sub="Their 11-value enum — needs a new field on ScheduleItem" />
           <div className="flex flex-wrap gap-1.5 p-4">

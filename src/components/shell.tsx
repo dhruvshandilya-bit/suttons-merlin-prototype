@@ -34,7 +34,7 @@ export const TopNav = ({ items, value, onChange }: { items: string[]; value: str
 )
 
 /* ── Global bar ───────────────────────────────────────────────────────── */
-export const GlobalBar = () => (
+export const GlobalBar = ({ onAsk, onBell, unread = 0 }: { onAsk?: () => void; onBell?: () => void; unread?: number }) => (
   <div className="ml-auto flex shrink-0 items-center gap-2">
     <div className="relative hidden md:block">
       <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-ink-400" />
@@ -45,12 +45,12 @@ export const GlobalBar = () => (
         <kbd className="rounded border border-line px-1 text-[10px] text-ink-400">K</kbd>
       </span>
     </div>
-    <button className="flex h-9 items-center gap-1.5 rounded-lg bg-ink-950 px-3 text-[13px] font-medium text-white hover:bg-ink-800">
+    <button onClick={onAsk} className="flex h-9 items-center gap-1.5 rounded-lg bg-ink-950 px-3 text-[13px] font-medium text-white hover:bg-ink-800">
       <Sparkles size={14} /> Ask AI
     </button>
-    <button className="relative grid h-9 w-9 place-items-center rounded-lg text-ink-600 hover:bg-ink-100">
+    <button onClick={onBell} className="relative grid h-9 w-9 place-items-center rounded-lg text-ink-600 hover:bg-ink-100">
       <Bell size={16} />
-      <span className="absolute right-1 top-1 rounded-full bg-danger-500 px-1 text-[9px] font-bold text-white">9+</span>
+      {unread > 0 && <span className="absolute right-1 top-1 rounded-full bg-danger-500 px-1 text-[9px] font-bold text-white">{unread > 9 ? '9+' : unread}</span>}
     </button>
   </div>
 )
