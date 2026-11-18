@@ -39,8 +39,9 @@ export default function ReadyQueue() {
       <div className="flex items-start gap-2 rounded-xl border border-brand-200 bg-brand-50 px-4 py-2.5 text-2xs text-brand-500">
         <BellRing size={14} className="mt-0.5 shrink-0" />
         <span>
-          When an estimate is approved, <b>Brianne and Zoe</b> get Merlin's Estimate Approved notification — in-app, push and email — with every
-          special order on the job. The estimated cost is already on the job and seeds its budget; nobody re-types it into QuickBooks to say it's ready.
+          <Badge tone="warn" className="mr-1">Proposed</Badge>
+          When an estimate is approved, <b>Brianne and Zoe</b> get an Estimate Approved notification, in-app and by push, with every
+          special order on the job. Merlin has this notification type but doesn't send it yet. The estimated cost is already on the job and seeds its budget; nobody re-types it into QuickBooks to say it's ready.
         </span>
       </div>
 

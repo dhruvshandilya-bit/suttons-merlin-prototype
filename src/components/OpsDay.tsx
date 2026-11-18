@@ -19,9 +19,10 @@ export default function OpsDay() {
     <div className="flex flex-wrap items-center gap-3 rounded-xl border border-brand-200 bg-brand-50 px-4 py-2.5">
       <CalendarCheck size={15} className="shrink-0 text-brand-400" />
       <div className="flex-1 text-2xs text-brand-500">
+        <Badge tone="warn" className="mr-1">Proposed</Badge>
         <b>Built from the schedule for the next workday.</b> On Friday, scheduling copies Monday's jobs from Future Forecast into a new
-        Operations Master tab by hand — here the board already knows. Sending the day plan puts each job's work order on the crew's and PM's phone,
-        in place of Brie's email per job.
+        Operations Master tab by hand — here the board would already know. Sending the day plan would put each person's jobs for the day on their phone,
+        in place of Brie's email per job. Merlin notifies work orders one at a time today.
       </div>
       {sent
         ? <Badge tone="ok"><CheckCircle2 size={10} /> Work orders sent to {crewJobs} crews and 7 PMs</Badge>

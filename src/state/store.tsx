@@ -60,9 +60,11 @@ const seedRun = (): RunItem[] => [
 
 /* ── Daily Logs state, per job, for the day on the board ───────────────
  * Two site reports a day, as Merlin ships them: Morning (due 10:00) and
- * Evening (due 18:00). Sutton's photo rules ride on them as required fields.
+ * Evening (due 18:00). Sutton's photo rules would ride on them as required fields (proposed:
+ * Merlin can't yet pick an org's report template).
  */
 export type Attendance = 'on site' | 'called in' | 'off'
+/** 'missed' is proposed — Merlin's Deliveries tab records received or damaged. */
 export type Delivery = 'received' | 'received some' | 'missed'
 export type Report = {
   crew: Record<string, Attendance>

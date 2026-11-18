@@ -20,13 +20,13 @@ export default function Setup() {
     { n: 9, label: 'PO counter', value: `PO-SUT-${COUNTERS.po}`, note: 'continued, not restarted' },
     { n: 10, label: 'Job counter', value: `${COUNTERS.job}-26`, note: 'continued, not restarted' },
   ]
-  /** From the 23 Oct operations call — each is a setting on the org, not a build. */
+  /** From the 23 Oct operations call. `proposed` rows are not in Merlin yet (origin/main, 18 Nov 2026); the rest are settings. */
   const fromCall = [
     { label: 'Project phase: Ready to schedule', value: 'Phase Config', note: 'between JNS and WIP — replaces the $0.01 in Estimated Cost' },
-    { label: 'Estimate Approved → scheduling', value: 'Brianne D. · Zoe P.', note: 'notification recipients — in-app, push and email, with the special orders' },
-    { label: 'Morning site report', value: '3 questions', note: "who's on site (with absence reason) · start-of-day photo · pre-existing damage on day 1" },
-    { label: 'Evening site report', value: '4 questions', note: 'deliveries due from the POs · impacts · end-of-day photo · notes for tomorrow' },
-    { label: 'Calendar stages', value: 'Red · Blue · Black', note: "Don't set up · Materials need set up · Ready / running — Zoe's key, her colours" },
+    { label: 'Estimate Approved → scheduling', value: 'Brianne D. · Zoe P.', proposed: true, note: "notification recipients, in-app and push, with the special orders — Merlin has the type but doesn't send it yet" },
+    { label: 'Morning site report', value: '3 questions', proposed: true, note: "who's on site (with absence reason) · start-of-day photo · pre-existing damage on day 1 — needs a setting to pick the org's report template" },
+    { label: 'Evening site report', value: '4 questions', proposed: true, note: "deliveries due from the POs · impacts · end-of-day photo · notes for tomorrow — needs a setting to pick the org's report template" },
+    { label: 'Schedule states', value: 'Red · Blue · Black', proposed: true, note: "Don't set up · Materials need set up · Ready / running — Merlin's configurable stages cover appointments only today" },
     { label: 'Delivery drivers', value: 'Warehouse run', note: 'warehouse manager orders the run and assigns the driver' },
     { label: 'Ask AI: forecasting inputs', value: `${FORECAST_TYPES.length} project types`, note: 'jobs per week + seasonal blackouts, from the Project Forecasting tab' },
   ]
@@ -56,7 +56,7 @@ export default function Setup() {
                 <Plus size={12} />
               </span>
               <div className="min-w-0 flex-1">
-                <div className="text-[13px] font-medium text-ink-950">{b.label}</div>
+                <div className="flex items-center gap-1.5 text-[13px] font-medium text-ink-950">{b.label}{b.proposed && <Badge tone="warn">Proposed</Badge>}</div>
                 <div className="text-2xs text-ink-500">{b.note}</div>
               </div>
               <span className="shrink-0 text-[12px] font-semibold text-ink-950">{b.value}</span>
@@ -79,7 +79,7 @@ export default function Setup() {
         </Card>
 
         <Card>
-          <CardHead title="Photo rules" sub="Required fields on the site reports" />
+          <CardHead title="Photo rules" sub="Required photo questions on Sutton's own report templates" right={<Badge tone="warn">Proposed</Badge>} />
           <div className="flex flex-wrap gap-1.5 p-4">
             {PHOTO_RULES.map(p => <Badge key={p.key} tone={p.required === 'always' ? 'brand' : 'neutral'}>{p.label}</Badge>)}
           </div>

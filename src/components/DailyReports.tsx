@@ -58,7 +58,7 @@ export default function DailyReports() {
         <Stat label="Site reports" value={`${submitted} / ${DAY_JOBS.length * 2}`} sub={`morning due ${DUE.morning} · evening ${DUE.evening}`} />
         <Stat label="Personnel on site" value={onSite} sub={calledIn.length ? `${calledIn.length} called in: ${calledIn.slice(0, 2).map(c => c.trim()).join(', ')}` : 'from morning check-in'} />
         <Stat label="Missing required photos" value={photoGaps} tone={photoGaps ? 'danger' : undefined} sub="jobs short a before / after / damage photo" />
-        <Stat label="Deliveries missed" value={missed.length} tone={missed.length ? 'danger' : undefined} sub="answered against the POs due today" />
+        <Stat label="Deliveries missed" value={missed.length} tone={missed.length ? 'danger' : undefined} sub="proposed status — Merlin records received or damaged today" />
         <Stat label="Impacts" value={impacts.length} sub={impacts.length ? impacts.map(j => `${j.name} · ${r(j).impact}`).slice(0, 2).join(', ') : 'weather delays flagged by crews'} />
       </div>
 
@@ -115,7 +115,7 @@ export default function DailyReports() {
 
       <div className="grid gap-4 lg:grid-cols-2">
         <Card>
-          <CardHead title="Photo rules" sub="What Zoe described on the 23 Oct call — required fields on the site reports, saved to the job's Before & After gallery" />
+          <CardHead title="Photo rules" sub="What Zoe described on the 23 Oct call — required photo questions on Sutton's own report templates, saved to the job's Before & After gallery" right={<Badge tone="warn">Proposed</Badge>} />
           <div className="divide-y divide-line">
             {PHOTO_RULES.map(p => (
               <div key={p.key} className="flex items-start gap-2.5 px-4 py-2.5">
@@ -139,7 +139,7 @@ export default function DailyReports() {
           <div className="space-y-2 px-4 py-3 text-2xs text-ink-600">
             <p><b className="text-ink-800">Operations Master, "Work in progress — next steps".</b> PMs do fill in their own day plan on the right-hand side; it's the next-steps block that stays empty ("no one fills that part out") — PMs put a note in MarketSharp instead. Here the next step lives on each job's evening report, where the whole team sees it.</p>
             <p><b className="text-ink-800">"Called in", "Vacation Day", rain and cold days</b> typed into Future Forecast cells. Morning check-in and the Impacts section record the same thing, once, from the site.</p>
-            <p><b className="text-ink-800">CompanyCam.</b> Before / during / after photos with no written rule. The rules on the left are required fields — a report can't be submitted without them.</p>
+            <p><b className="text-ink-800">CompanyCam.</b> Before / during / after photos with no written rule. The rules on the left are proposed as required questions on Sutton's own report templates. Merlin supports required photo questions, but an org can't pick its own templates yet.</p>
             <p className="text-ink-400">Absence reasons ("called in", "off") are added as a question on Sutton's morning site report — Merlin's crew roster itself only knows clock-in and clock-out.</p>
           </div>
         </Card>
@@ -272,7 +272,7 @@ export function ReportForm({ j }: { j: DayJob }) {
                         className={cn('rounded-md border px-1.5 py-0.5 text-[10px] font-medium capitalize',
                           rep.received[d.key] === v
                             ? v === 'received' ? 'border-ok-500 bg-ok-50 text-ok-700' : 'border-warn-500 bg-warn-50 text-warn-700'
-                            : 'border-line text-ink-500 hover:bg-ink-50')}>{v}</button>
+                            : 'border-line text-ink-500 hover:bg-ink-50')}>{v}{v === 'missed' && <span className="ml-1 normal-case text-warn-700">· proposed</span>}</button>
                     ))}
                   </div>
                 </div>
