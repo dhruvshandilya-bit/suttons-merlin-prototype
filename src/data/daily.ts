@@ -2,8 +2,9 @@ import { OPS_ROWS, OPS_LOGISTICS, SPECIAL_ORDERS, JOBS, type SpecialOrder } from
 import { parseCell } from '../lib/util'
 
 /* ── Daily Logs — what replaces typing into Operations Master ──────────────
- * 23 Oct call: the PM "next steps" columns on Operations Master never get filled
- * in (notes go into MarketSharp instead), and site photos live in CompanyCam
+ * 23 Oct call: PMs fill in their own day plan on Operations Master, but the
+ * "Work in progress — next steps" block never gets filled in (notes go into
+ * MarketSharp instead), and site photos live in CompanyCam
  * with no written rule for what to shoot. So each job on the day board gets
  * Merlin's Morning and Evening site reports, pre-filled with what Merlin
  * already knows — which deliveries are due (from the POs), who's booked (from

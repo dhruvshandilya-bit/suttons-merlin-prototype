@@ -83,7 +83,7 @@ export default function OpsDay() {
 
       <div className="space-y-4">
         <Card>
-          <CardHead title="Project manager routes" sub="From the PM initials on each job — PMs never filled their column, so nobody has to" />
+          <CardHead title="Project manager routes" sub="Each PM's own plan for the day, read from their column on Operations Master — they fill it in themselves" />
           <div className="divide-y divide-line">
             {OPS_PM_LANES.map(l => (
               <div key={l.name} className="px-4 py-2.5">

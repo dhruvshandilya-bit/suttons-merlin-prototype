@@ -131,7 +131,7 @@ function Route({ mod, tab }: { mod: Mod; tab: string }) {
   // Jobs
   if (mod === 'jobs' && tab === 'Home') return <Jobs />
   if (mod === 'jobs' && tab === 'Project Phases') return <Phases />
-  if (mod === 'jobs' && tab === 'Daily Logs') return <Page title="Daily Logs" sub="Morning and evening site reports for every job on the board — replaces Operations Master's PM columns and the CompanyCam habit"><DailyReports /></Page>
+  if (mod === 'jobs' && tab === 'Daily Logs') return <Page title="Daily Logs" sub="Morning and evening site reports for every job on the board — replaces Operations Master's empty next-steps block and the CompanyCam habit"><DailyReports /></Page>
   if (mod === 'jobs' && tab === 'Job Packet') return <Page title="Job packet" sub="The 11 per-job documents"><Documents /></Page>
   if (mod === 'jobs') return <Stub title={tab} module="Jobs" />
 

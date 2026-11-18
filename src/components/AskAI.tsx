@@ -82,7 +82,7 @@ export default function AskAI({ onClose }: { onClose: () => void }) {
                 {m.a === 'field' && <FieldAnswer />}
                 {m.a === null && (
                   <div className="text-[13px] text-ink-600">
-                    This prototype answers four questions from Sutton's own data — forecasting, ready-to-schedule, the warehouse run, attendance and today's field report.
+                    This prototype answers five questions from Sutton's own data — forecasting, ready-to-schedule, the warehouse run, attendance and today's field report.
                     Try one of the suggestions below.
                   </div>
                 )}

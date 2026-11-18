@@ -137,7 +137,7 @@ export default function DailyReports() {
         <Card>
           <CardHead title="What this replaces" />
           <div className="space-y-2 px-4 py-3 text-2xs text-ink-600">
-            <p><b className="text-ink-800">Operations Master, right-hand side.</b> The PM "next steps" columns are blank on every tab — PMs put their notes in MarketSharp. The PM's day is now the jobs carrying their initials, and the notes live on each job's evening report.</p>
+            <p><b className="text-ink-800">Operations Master, "Work in progress — next steps".</b> PMs do fill in their own day plan on the right-hand side; it's the next-steps block that stays empty ("no one fills that part out") — PMs put a note in MarketSharp instead. Here the next step lives on each job's evening report, where the whole team sees it.</p>
             <p><b className="text-ink-800">"Called in", "Vacation Day", rain and cold days</b> typed into Future Forecast cells. Morning check-in and the Impacts section record the same thing, once, from the site.</p>
             <p><b className="text-ink-800">CompanyCam.</b> Before / during / after photos with no written rule. The rules on the left are required fields — a report can't be submitted without them.</p>
             <p className="text-ink-400">Absence reasons ("called in", "off") are added as a question on Sutton's morning site report — Merlin's crew roster itself only knows clock-in and clock-out.</p>

@@ -117,7 +117,7 @@ Left list, click through top to bottom:
 **Replaces:** the 08/28/2026 tab.
 
 - **Left:** crew assignments by band, with start times, Plan A, and Plan B in amber.
-- **Right, top:** the **7 PM routes** — Adam Shryock, Brian Farley, Abelardo Cortez, Hector Ventura, Jordan Chapman, Joshua Phillips, Richard Doering, with stop counts.
+- **Right, top:** the **7 PM routes**, read from the day plan each PM types into their own column — Adam Shryock, Brian Farley, Abelardo Cortez, Hector Ventura, Jordan Chapman, Joshua Phillips, Richard Doering, with stop counts.
 - **Top banner:** the board is built from the schedule — **Send day plan** replaces Brie's email per job.
 - **Right, middle:** the **warehouse run** — Sutton's deliveries and carpenter pick-ups. Reorder with the arrows, assign a driver, tick off. Pending → Dispatched → Delivered.
 - **Right, bottom:** equipment — Dump Trailer #1/#2/#3 and Equipter #1, each with its current job. *Reconcile with AssetTiger.*
@@ -187,12 +187,12 @@ Right side: the 11-value schedule-type enum, all 11 business rules, and the **am
 1. The three-step strip: **Costing in progress 29 → Ready to schedule 22 → Scheduled 18**, read from Job Status.
 2. Each card: estimate, GP, missing paperwork, every special-order PO with status or ETA, and **earliest start** — the later of
    the crew backlog for that trade and the vendor's ETA.
-3. Four jobs show the real placeholder from the sheet (`DP`, `GM`, `$0.01`) with a line explaining what it means today.
+3. Five jobs show the real placeholder from the sheet (`DP` ×3, `GM`, `$0.01`) with a line explaining what it means today.
 4. **Plug in** → pick a crew lane in the right trade and a day → **Put on the board**. It lands on Schedule in red.
    Then **Call for delivery** appears on any PO still *Ready at Vendor*.
 5. The **bell** (top right) holds the Estimate Approved notifications that started this — click one to come here.
 
-## 12 · Jobs → Daily Logs — *what replaces the PM columns and CompanyCam*
+## 12 · Jobs → Daily Logs — *what replaces the empty next-steps block and CompanyCam*
 
 1. Five tiles: site reports in, personnel on site, jobs missing required photos, deliveries missed, impacts.
 2. **Combined Daily Logs** — every job with a crew on it on the day board, with Morning / Evening status.
