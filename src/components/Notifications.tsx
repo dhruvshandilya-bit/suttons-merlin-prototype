@@ -25,7 +25,7 @@ export default function Notifications({ onClose, onOpenJob }: { onClose: () => v
                   <span className="ml-auto shrink-0 text-[10px] text-ink-400">{n.at}</span>
                 </div>
                 <div className="text-2xs text-ink-500">{n.body}</div>
-                <div className="mt-0.5 text-[10px] text-ink-400">To {n.to} · in-app and push · <span className="font-medium text-warn-700">proposed</span> — Merlin doesn't send this one yet</div>
+                <div className="mt-0.5 text-[10px] text-ink-400">To {n.to} · in-app, push and email · <span className="font-medium text-info-600">in build</span></div>
               </div>
               {!n.read && <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-brand-400" />}
             </button>

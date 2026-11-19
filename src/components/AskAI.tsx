@@ -21,7 +21,7 @@ type Q = 'forecast' | 'ready' | 'deliveries' | 'attendance' | 'field'
 const PROMPTS: { key: Q; icon: any; text: string }[] = [
   { key: 'forecast', icon: CalendarRange, text: 'How many weeks out are we, by project type?' },
   { key: 'ready', icon: ClipboardCheck, text: 'Which costed jobs are ready to schedule, and what are they waiting on?' },
-  { key: 'deliveries', icon: Truck, text: "What's on the warehouse run for the day board?" },
+  { key: 'deliveries', icon: Truck, text: "Plan tomorrow's warehouse run" },
   { key: 'attendance', icon: UserX, text: 'Who called in or was off in the last two weeks?' },
   { key: 'field', icon: ClipboardCheck, text: "Give me today's field report across all jobs" },
 ]
@@ -245,23 +245,60 @@ function ReadyAnswer() {
           </div>
         ))}
       </div>
-      {rows.length > 10 && <div className="text-2xs text-ink-500">+{rows.length - 10} more on Operations → Ready to schedule.</div>}
+      {rows.length > 10 && <div className="text-2xs text-ink-500">+{rows.length - 10} more in the Operations calendar's Add work tray.</div>}
     </div>
   )
 }
 
+/**
+ * The warehouse run, planned by Ask AI instead of a screen: tomorrow's deliveries from the warehouse
+ * to job sites, then carpenter pick-ups, in the order a warehouse manager would run them — jobs
+ * starting tomorrow first. The manager reorders by telling it, then sends it (plan-then-confirm).
+ */
 function DeliveriesAnswer() {
   const { pickups, deliveries, trailers } = OPS_LOGISTICS
+  const [stops, setStops] = useState(() => [
+    ...deliveries.map(t => ({ kind: 'delivery' as const, text: t })),
+    ...pickups.slice(0, 5).map(t => ({ kind: 'pickup' as const, text: t })),
+  ])
+  const [sent, setSent] = useState(false)
+  const move = (i: number, d: -1 | 1) => setStops(s => {
+    const j = i + d
+    if (j < 0 || j >= s.length) return s
+    const n = [...s];[n[i], n[j]] = [n[j], n[i]]
+    return n
+  })
   return (
     <div className="space-y-2 text-[12px]">
       <div className="text-[13px] text-ink-800">
-        The day board has <b>{deliveries.length} Sutton's deliver{deliveries.length === 1 ? 'y' : 'ies'}</b> and <b>{pickups.length} carpenter
-        pick-up{pickups.length === 1 ? '' : 's'}</b>. The warehouse manager sets the
-        order and the driver; each line checks off from the driver's phone.
+        Tomorrow's run: <b>{deliveries.length} Sutton's deliver{deliveries.length === 1 ? 'y' : 'ies'}</b> to job sites, then <b>{Math.min(pickups.length, 5)} carpenter
+        pick-up{pickups.length === 1 ? '' : 's'}</b>. I put deliveries for jobs starting tomorrow first. Move anything, then send it to the driver.
       </div>
-      {deliveries.map((d, i) => <div key={i} className="flex gap-2 text-ink-700"><Truck size={12} className="mt-0.5 shrink-0 text-info-500" />{d}</div>)}
-      {pickups.slice(0, 4).map((d, i) => <div key={i} className="flex gap-2 text-ink-700"><ClipboardCheck size={12} className="mt-0.5 shrink-0 text-warn-600" />{d}</div>)}
+      <ol className="space-y-1">
+        {stops.map((s, i) => (
+          <li key={i} className="flex items-start gap-2 rounded-lg border border-line bg-white px-2 py-1.5 text-ink-700">
+            <span className="tnum w-4 shrink-0 text-2xs text-ink-400">{i + 1}</span>
+            {s.kind === 'delivery'
+              ? <Truck size={12} className="mt-0.5 shrink-0 text-info-500" />
+              : <ClipboardCheck size={12} className="mt-0.5 shrink-0 text-warn-600" />}
+            <span className="flex-1">{s.text}</span>
+            <span className="flex shrink-0 gap-0.5">
+              <button onClick={() => move(i, -1)} className="rounded px-1 text-ink-400 hover:bg-ink-100">↑</button>
+              <button onClick={() => move(i, 1)} className="rounded px-1 text-ink-400 hover:bg-ink-100">↓</button>
+            </span>
+          </li>
+        ))}
+      </ol>
       <div className="text-2xs text-ink-500">{trailers.filter(t => !/shop/i.test(t.at)).length} trailers are out on jobs; the rest are at the shop.</div>
+      <div className="flex items-center gap-2 rounded-lg border border-line bg-ink-50 px-3 py-2">
+        <span className="text-2xs text-ink-600">Driver: <b className="text-ink-800">Delivery driver</b> · reads it in the field app and ticks off each stop</span>
+        {sent
+          ? <Badge tone="ok" ><CheckCircle2 size={10} /> Sent to the driver</Badge>
+          : <Button size="sm" className="ml-auto" onClick={() => setSent(true)}><Send size={11} /> Review & send</Button>}
+      </div>
+      <div className="text-[10.5px] text-ink-400">
+        <b>Proposed:</b> Ask AI can already read POs, pick-ups and Daily Materials. Sending the run to the driver's phone in order isn't in Merlin yet.
+      </div>
     </div>
   )
 }

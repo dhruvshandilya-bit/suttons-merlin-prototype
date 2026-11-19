@@ -95,32 +95,29 @@ Left list, click through top to bottom:
 
 ---
 
-## 5 · Operations → Schedule — *Future Forecast*
+## 5 · Operations → Dashboard — *Future Forecast, the $0.01 and Operations Master, on one Merlin page*
 
-**Replaces:** the scheduling board Zoe lives in.
+Merlin's `/operations/dashboard` with its three views (toggle top-left; the URL it maps to is shown beside it).
 
-1. **Trade band filter** — `All trades` plus the 12 real bands.
-2. **Legend** top-right: Red / Blue / Black — their exact three states.
-3. **Crew rows.** Employees show a person icon; **trade partners show a wrench and a `Trade partner` badge** — that's the `*` in their sheet. The purple chips are the crew's **default PM** initials.
-4. **PM off** ribbons in the day headers — their `PM VACATIONs` row.
-5. **Click any job** → drawer opens with crew, project manager (full name from the initials), phases, markers, and the verbatim source cell.
-6. **Reschedule grid** in the drawer — **hover a day** and the panel previews *"Moves N later jobs for this crew"*, naming each. Click to commit.
-7. A banner then names every job that moved. **Other crews are untouched.**
-8. **`Same-crew ripple` checkbox** top-right — turn it off and the same move shifts nothing else. That's the difference between Sutton's rule and Merlin's dependency ripple.
+**Today** — four tiles: *Ready to schedule* (opens the tray), *On tomorrow's board*, *Morning reports in* (opens Daily Logs on
+a job), *Crew off today*; the fortnight's red / blue / black counts; ready jobs still waiting on special orders.
 
-> **The demo:** filter to `SIDING`, click Stapleton 1395-25 on SAUCEDA BRO'S, hover Thursday. Six downstream jobs preview. Commit — roofing doesn't move.
+**Schedule** — the crew timeline (Future Forecast):
+1. **Trade band filter**, legend in Zoe's words, crew rows (trade partners carry a wrench), default PM initials.
+2. **Click any job** → drawer with crew, PM, phases and the source cell; **hover a day** to preview *"Moves N later jobs for this crew"*.
+3. **`Same-crew ripple`** — only that crew's later jobs move. Other crews are untouched.
 
----
+> **The demo:** filter to `SIDING`, click Stapleton 1395-25 on SAUCEDA BRO'S, hover Thursday. Six downstream jobs preview.
 
-## 6 · Operations → Day Board — *Operations Master*
-
-**Replaces:** the 08/28/2026 tab.
-
-- **Left:** crew assignments by band, with start times, Plan A, and Plan B in amber.
-- **Right, top:** the **7 PM routes**, read from the day plan each PM types into their own column — Adam Shryock, Brian Farley, Abelardo Cortez, Hector Ventura, Jordan Chapman, Joshua Phillips, Richard Doering, with stop counts.
-- **Top banner** *(Proposed)***:** the board is built from the schedule — **Send day plan** would replace Brie's email per job.
-- **Right, middle:** the **warehouse run** — Sutton's deliveries and carpenter pick-ups. Reorder with the arrows, assign a driver, tick off. Pending → Dispatched → Delivered.
-- **Right, bottom:** equipment — Dump Trailer #1/#2/#3 and Equipter #1, each with its current job. *Reconcile with AssetTiger.*
+**Calendar** — `Week | Day`:
+- **Week**: each day's jobs as chips with a red / blue / black dot and the day's counts. Click a day to open it.
+- **Day** — the day board. Opens on the fortnight's busiest day.
+  1. **Add work to this day** — Merlin's unscheduled tray = Ready to schedule. 22 costed jobs first, then the ones still being
+     costed. Each row: *Costed*, *Special orders due* (amber when after this day), missing paperwork, **Daily logs**.
+     **Book it here** → crew (filtered to the job's trade) → **Book it**. The card appears on the board as *just booked*, red.
+  2. **Board** — one column per trade; **Group by → Project manager** regroups by PM initials. Each card: job, crew, phases,
+     red / blue / black chip, **Daily logs**.
+  3. **Agenda** — crew time off (called in / vacation / weather), special orders due that day, equipment out.
 
 ---
 
@@ -155,17 +152,18 @@ Bottom: the **notification matrix**, rebuilt from the real distribution lists.
 
 ---
 
-## 9 · Field app preview — *the carpenter folder as a phone*
+## 9 · Field app preview — *what the crew, PMs and drivers do on the phone*
 
-Left rail → `OTHERS` → **Field app preview**.
+Left rail → `OTHERS` → **Field app preview**. Header: job, phase, PM chip, address, Call, Clock in, and the reschedule notice.
 
-- Header carries job number, phase, PM chip, address, Call and Clock-in.
-- **Amber banner** — the reschedule notice and *"Please call Ted on your way out."*
-- **Work tab** — tap the checklist. Then materials, hauling, progress payment, PO, install-instruction links, and the AP terms.
-- **Photos tab** — replaces the CompanyCam link.
-- **Chat tab** — PM, scheduler and carpenter on one thread.
+- **My day** — the 5 pm *"Your plan for Thu 27 Aug"* push, then today's jobs in order. PMs: Ask AI on the project dashboard gives the brief.
+- **Work order** — the scope checklist with photo-required steps, materials, hauling, progress payment, PO, install links, AP terms.
+- **Daily log** — the morning and evening reports (same form as Jobs → Daily Logs).
+- **Materials** — morning truck load, evening return; used = loaded − back; the office approves before job cost moves.
+- **Photos** — *Normal* or *Bespoke* before / after pairs; filter All / Bespoke / Normal.
+- **Time off** — Leave, Overtime, and the new **Called in**, **Sick**, **Vacation**.
 
-*Carpenters have no MarketSharp login today. This email is their entire view of the job.*
+Drivers get the warehouse run from Ask AI; trade partners get a text or email link to their tasks instead of the app.
 
 ---
 
@@ -180,25 +178,19 @@ Right side: the 11-value schedule-type enum, all 11 business rules, and the **am
 
 ---
 
-## 11 · Operations → Ready to schedule — *the end of the $0.01*
+## 11 · Ready to schedule — *the end of the $0.01*
 
-**Replaces:** the penny (or the estimator's initials) in Estimated Cost, Brie re-keying cost into QuickBooks, and the email to scheduling.
-
-1. The three-step strip: **Costing in progress 29 → Ready to schedule 22 → Scheduled 18**, read from Job Status.
-2. Each card: estimate, GP, missing paperwork, every special-order PO with status or ETA, and **earliest start** — the later of
-   the crew backlog for that trade and the vendor's ETA.
-3. Five jobs show the real placeholder from the sheet (`DP` ×3, `GM`, `$0.01`) with a line explaining what it means today.
-4. **Plug in** → pick a crew lane in the right trade and a day → **Put on the board**. It lands on Schedule in red.
-   Then **Call for delivery** appears on any PO still *Ready at Vendor*.
-5. The **bell** (top right) holds the Estimate Approved notifications that started this — click one to come here. *Proposed:* Merlin has this notification type but doesn't send it yet.
+It's the Calendar's **Add work to this day** tray (section 5). When an estimate is marked costing complete, the job moves to the
+"Ready to schedule" phase and scheduling gets a bell, push and email with its special orders — the **bell** top-right holds them;
+click one to open the tray. *(In build.)*
 
 ## 12 · Jobs → Daily Logs — *what replaces the empty next-steps block and CompanyCam*
 
 1. Five tiles: site reports in, personnel on site, jobs missing required photos, deliveries missed, impacts.
 2. **Combined Daily Logs** — every job with a crew on it on the day board, with Morning / Evening status.
 3. Click a job → **Morning** report: who's on site (on site / called in / off), *before work starts* photo, and on day 1 the
-   *pre-existing damage* photo. Submit stays disabled until they're done. *Proposed:* this needs Sutton's own report template, which no setting can pick yet.
-4. **Evening** report: deliveries due (from the POs and the warehouse run) → received / received some / missed (*missed* is proposed), impacts
+   *pre-existing damage* photo. Submit stays disabled until they're done. *(Needs Sutton's own report template — the setting is in build.)*
+4. **Evening** report: deliveries due (POs due that day) → received / received some / missed, impacts
    (weather delay), *end of day* photo, notes for tomorrow.
 5. The same form is the **Daily log** tab in the field app.
 
@@ -206,8 +198,9 @@ Right side: the 11-value schedule-type enum, all 11 business rules, and the **am
 
 Top-right **Ask AI** → *"How many weeks out are we, by project type?"* — the Project Forecasting tab's formula, live. Change a
 jobs/week number and the dates move. Types inside a seasonal blackout get pushed past it. **Draft the monthly company-wide email**
-shows a draft; nothing sends until you press send. Also try *"Which costed jobs are ready to schedule?"* and
-*"Give me today's field report across all jobs"* after submitting a report.
+shows a draft; nothing sends until you press send. **"Plan tomorrow's warehouse run"** lists tomorrow's deliveries (job starts
+first) and carpenter pick-ups — reorder with the arrows, then **Review & send** to the driver *(sending is proposed)*. Also try
+*"Which costed jobs are ready to schedule?"* and *"Give me today's field report across all jobs"*.
 
 ## 14 · Finance → Budget — *estimated vs actual*
 
@@ -223,10 +216,10 @@ point. The right-hand card is Zoe's 2×4 example (marked *Example*).
 | 1 | Sales → Dashboard | *"43% of your backlog is uncosted. You already measure it — nobody sees it."* |
 | 2 | Jobs → Project Phases | *"Here's your board with all eight of your tabs, not three."* |
 | 3 | Sales → Estimate | *"Same line, one price per crew. Watch the approval change as margin moves."* |
-| 4 | Operations → Schedule | *"Move one job. Only that crew's later jobs follow."* |
+| 4 | Operations → Dashboard → Schedule | *"Move one job. Only that crew's later jobs follow."* |
 | 5 | Materials → Purchase | *"Your Thursday emails, with acknowledgement."* |
 | 6 | Field app preview | *"The carpenter folder, on the phone."* |
 | 7 | Jobs → Job Packet | *"Every document you make for a job — and the two you haven't sent us."* |
 
-**For Zoe's follow-up (after the 23 Oct call):** Ready to schedule → plug a job in → Schedule (it's red; open it, show *Before it
-turns black*) → Day Board (*Send day plan*, warehouse run) → Daily Logs (fill a morning report) → Ask AI (*weeks out*).
+**For Zoe's follow-up:** the bell → *Add work to this day* → **Book it here** (it lands red on the day board) → **Daily logs** on a card →
+fill a morning report → Ask AI (*weeks out*, *tomorrow's warehouse run*) → Field app (*My day*, *Time off*).

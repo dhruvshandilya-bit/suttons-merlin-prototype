@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
 import {
-  ChevronLeft, Camera, MessageSquare, CheckCircle2, Circle, MapPin, Phone,
+  ChevronLeft, Camera, CheckCircle2, Circle, MapPin, Phone,
   FileText, Truck, Trash2, ExternalLink, DollarSign, Clock,
 } from 'lucide-react'
 import { cn } from '../lib/util'
 import { ReportForm } from './DailyReports'
 import type { DayJob } from '../data/daily'
+import { MyDay, Materials, Photos, TimeOff } from './FieldExtras'
 
 /** The Starrick 1401-26 carpenter folder, as a phone screen. */
 const JOB = {
@@ -38,9 +39,15 @@ const FIELD_JOB: DayJob = {
   deliveries: [{ key: 'f-wh', text: 'Provia entry door — pick up from the warehouse (verified 8/19)', source: 'warehouse' }],
 }
 
+type Tab = 'day' | 'work' | 'log' | 'materials' | 'photos' | 'timeoff'
+const TABS: [Tab, string][] = [
+  ['day', 'My day'], ['work', 'Work order'], ['log', 'Daily log'],
+  ['materials', 'Materials'], ['photos', 'Photos'], ['timeoff', 'Time off'],
+]
+
 export default function Field() {
   const [steps, setSteps] = useState(STEPS)
-  const [tab, setTab] = useState<'work' | 'log' | 'photos' | 'chat'>('work')
+  const [tab, setTab] = useState<Tab>('day')
   const done = steps.filter(s => s.done).length
 
   return (
@@ -80,12 +87,12 @@ export default function Field() {
         </div>
 
         {/* tabs */}
-        <div className="flex border-b border-line">
-          {(['work', 'log', 'photos', 'chat'] as const).map(t => (
+        <div className="flex overflow-x-auto border-b border-line">
+          {TABS.map(([t, label]) => (
             <button key={t} onClick={() => setTab(t)}
-              className={cn('flex-1 py-2.5 text-[12px] font-medium capitalize',
+              className={cn('shrink-0 px-3 py-2.5 text-[11.5px] font-medium',
                 tab === t ? 'border-b-2 border-brand-400 text-brand-400' : 'text-ink-500')}>
-              {t === 'work' ? 'Work order' : t === 'log' ? 'Daily log' : t === 'photos' ? 'Gallery' : 'Chat'}
+              {label}
             </button>
           ))}
         </div>
@@ -139,43 +146,19 @@ export default function Field() {
             </div>
           )}
 
+          {tab === 'day' && <MyDay />}
           {tab === 'log' && <ReportForm j={FIELD_JOB} />}
+          {tab === 'materials' && <Materials />}
+          {tab === 'timeoff' && <TimeOff />}
+          {tab === 'photos' && <Photos />}
 
-          {tab === 'photos' && (
-            <div className="space-y-3">
-              <button className="flex w-full items-center justify-center gap-2 rounded-xl border-2 border-dashed border-ink-300 bg-white py-8 text-[13px] font-medium text-ink-600">
-                <Camera size={18} /> Take progress photo
-              </button>
-              <div className="grid grid-cols-3 gap-2">
-                {['Before', 'Before', 'Frame out', 'Dry fit'].map((c, i) => (
-                  <div key={i} className="aspect-square rounded-lg bg-gradient-to-br from-ink-200 to-ink-300">
-                    <div className="flex h-full items-end p-1.5"><span className="text-[9px] font-medium text-ink-700">{c}</span></div>
-                  </div>
-                ))}
-              </div>
-              <div className="text-[11px] text-ink-500">
-                Before & After gallery — every site-report and work-order photo lands here. Replaces the CompanyCam link in the folder email.
-              </div>
-            </div>
-          )}
-
-          {tab === 'chat' && (
-            <div className="space-y-2">
-              <Msg who="Cortez" pm text="Start moved to Thursday 8/27 — Ted asked for a call on your way out." />
-              <Msg me text="Copy. Materials picked up from the warehouse this morning." />
-              <Msg who="Ashley" text="Provia door is at the warehouse, verified 8/19." />
-              <div className="flex gap-2 pt-2">
-                <input placeholder="Message the team…" className="h-9 flex-1 rounded-full border border-line px-3 text-[12px]" />
-                <button className="grid h-9 w-9 place-items-center rounded-full bg-brand-400 text-white"><MessageSquare size={15} /></button>
-              </div>
-            </div>
-          )}
         </div>
       </div>
 
       <div className="mt-4 max-w-[420px] text-center text-2xs text-ink-500">
-        The Starrick 1401-26 carpenter folder — subject line, PO number, progress payment, install links, AP terms and the
-        reschedule notice — as one screen. Carpenters have no MarketSharp login today, so this email is their entire view of the job.
+        What the crew does on the phone: their day (and the 5 pm plan for tomorrow), the work order with photo steps, the morning
+        and evening reports, the truck's materials, before / after photos, and time off. Drivers get the warehouse run here; trade
+        partners get a link by text or email instead of the app.
       </div>
     </div>
   )
@@ -187,16 +170,6 @@ const Info = ({ icon: Icon, label, value }: any) => (
     <div>
       <div className="text-[11px] uppercase tracking-wide text-ink-500">{label}</div>
       <div className="text-[12.5px] font-medium text-ink-900">{value}</div>
-    </div>
-  </div>
-)
-
-const Msg = ({ who, text, me, pm }: any) => (
-  <div className={cn('flex', me && 'justify-end')}>
-    <div className={cn('max-w-[80%] rounded-2xl px-3 py-2 text-[12px]',
-      me ? 'bg-brand-400 text-white' : 'border border-line bg-white text-ink-800')}>
-      {!me && <div className="mb-0.5 flex items-center gap-1 text-[10px] font-semibold text-ink-500">{who}{pm && <span className="rounded bg-brand-50 px-1 text-brand-400">PM</span>}</div>}
-      {text}
     </div>
   </div>
 )

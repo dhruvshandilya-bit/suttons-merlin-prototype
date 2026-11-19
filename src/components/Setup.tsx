@@ -5,6 +5,7 @@ import { FORECAST_TYPES } from '../data/forecast'
 import { PHOTO_RULES } from '../data/daily'
 import { Card, CardHead, Badge } from './ui'
 import { money, pct } from '../lib/util'
+import { InBuild } from './ops/bits'
 
 export default function Setup() {
   const subs = LANES.filter(l => l.isSub).length
@@ -20,14 +21,15 @@ export default function Setup() {
     { n: 9, label: 'PO counter', value: `PO-SUT-${COUNTERS.po}`, note: 'continued, not restarted' },
     { n: 10, label: 'Job counter', value: `${COUNTERS.job}-26`, note: 'continued, not restarted' },
   ]
-  /** From the 23 Oct operations call. `proposed` rows are not in Merlin yet (origin/main, 18 Nov 2026); the rest are settings. */
+  /** From the calls with Zoe. `inBuild` rows are being added to Merlin now (19 Nov 2026); the rest are settings today. */
   const fromCall = [
-    { label: 'Project phase: Ready to schedule', value: 'Phase Config', note: 'between JNS and WIP — replaces the $0.01 in Estimated Cost' },
-    { label: 'Estimate Approved → scheduling', value: 'Brianne D. · Zoe P.', proposed: true, note: "notification recipients, in-app and push, with the special orders — Merlin has the type but doesn't send it yet" },
-    { label: 'Morning site report', value: '3 questions', proposed: true, note: "who's on site (with absence reason) · start-of-day photo · pre-existing damage on day 1 — needs a setting to pick the org's report template" },
-    { label: 'Evening site report', value: '4 questions', proposed: true, note: "deliveries due from the POs · impacts · end-of-day photo · notes for tomorrow — needs a setting to pick the org's report template" },
-    { label: 'Schedule states', value: 'Red · Blue · Black', proposed: true, note: "Don't set up · Materials need set up · Ready / running — Merlin's configurable stages cover appointments only today" },
-    { label: 'Delivery drivers', value: 'Warehouse run', note: 'warehouse manager orders the run and assigns the driver' },
+    { label: 'Ready to schedule: on costing complete', value: 'Brianne D. · Zoe P.', inBuild: true, note: 'when the estimate is marked costed: move the job to the "Ready to schedule" phase and tell scheduling (bell, push, email) with its special orders' },
+    { label: 'Work-order template per job type', value: '5 steps', note: 'Confirm date with customer · Set up materials (special orders, deliveries, dumpster, big-box) · Send job packet · the work, per trade · Walkthrough' },
+    { label: 'Red / blue / black', value: 'From 2 steps', inBuild: true, note: '"Confirm date with customer" done = blue; "Set up materials" done = black — shown on the Operations calendar' },
+    { label: 'Crews as stations', value: `${new Set(LANES.map(l => l.band)).size} trades`, note: 'each crew or trade partner is a station, so the Operations calendar and day board group by crew' },
+    { label: 'Morning site report', value: 'Sutton\'s template', inBuild: true, note: "who isn't here and why · start-of-day photo · damage photo on day 1 — needs the report-template setting" },
+    { label: 'Evening site report', value: 'Sutton\'s template', inBuild: true, note: 'deliveries due from the POs · weather and delays · end-of-day photo · next steps' },
+    { label: 'Next-workday plan', value: '5 pm', inBuild: true, note: 'each person gets their jobs for the next business day as one push' },
     { label: 'Ask AI: forecasting inputs', value: `${FORECAST_TYPES.length} project types`, note: 'jobs per week + seasonal blackouts, from the Project Forecasting tab' },
   ]
   return (
@@ -56,7 +58,7 @@ export default function Setup() {
                 <Plus size={12} />
               </span>
               <div className="min-w-0 flex-1">
-                <div className="flex items-center gap-1.5 text-[13px] font-medium text-ink-950">{b.label}{b.proposed && <Badge tone="warn">Proposed</Badge>}</div>
+                <div className="flex items-center gap-1.5 text-[13px] font-medium text-ink-950">{b.label}{b.inBuild && <InBuild />}</div>
                 <div className="text-2xs text-ink-500">{b.note}</div>
               </div>
               <span className="shrink-0 text-[12px] font-semibold text-ink-950">{b.value}</span>
@@ -79,7 +81,7 @@ export default function Setup() {
         </Card>
 
         <Card>
-          <CardHead title="Photo rules" sub="Required photo questions on Sutton's own report templates" right={<Badge tone="warn">Proposed</Badge>} />
+          <CardHead title="Photo rules" sub="Required photo questions on Sutton's own report templates" right={<InBuild />} />
           <div className="flex flex-wrap gap-1.5 p-4">
             {PHOTO_RULES.map(p => <Badge key={p.key} tone={p.required === 'always' ? 'brand' : 'neutral'}>{p.label}</Badge>)}
           </div>

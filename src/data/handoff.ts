@@ -47,6 +47,20 @@ export function earliestStart(j: Job, today = new Date()) {
   return { date: etaGates ? eta! : best, by: etaGates ? 'special order ETA' : 'crew backlog' }
 }
 
+/** Job Status "Job Type" → the Future Forecast trade bands (crews) that do the work. */
+const BAND_FOR: [RegExp, string][] = [
+  [/Roofing/, 'ROOFING'], [/Siding/, 'SIDING'], [/Windows|Doors|Skylights/, 'WINDOWS / DOORS'],
+  [/Gutters/, 'GUTTERS'], [/Deck|Patio|Screen Room/, 'DECKS / SUNROOMS'],
+  [/Bathroom|Kitchen|Basement|Remodeling|Design Build/, 'REMODELING CARPENTERS'],
+  [/Drywall/, 'DRYWALL/PAINT'], [/Service|Temp|AOB/, 'SERVICE TEAM'],
+]
+export const bandsFor = (jobType: string) => [...new Set(BAND_FOR.filter(([re]) => re.test(jobType)).map(([, b]) => b))]
+
+/** `yyyy-MM-dd` the job's last special order still on its way is due, or null when nothing is pending. */
+export const specialOrdersDue = (jobNo: string): string | null =>
+  ordersFor(jobNo).filter(s => !isHere(s) && s.expected)
+    .reduce<string | null>((m, s) => (!m || s.expected > m ? s.expected : m), null)
+
 export const READY = JOBS.filter(j => j.bucket === 'JNS' && stageOf(j) === 'ready')
 export const COSTING = JOBS.filter(j => j.bucket === 'JNS' && stageOf(j) === 'costing')
 export const PLUGGED = JOBS.filter(j => j.bucket === 'JNS' && stageOf(j) === 'plugged')

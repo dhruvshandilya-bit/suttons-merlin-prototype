@@ -43,8 +43,8 @@ const seedNotifs = (): Notif[] =>
     const so = ordersFor(j.jobNo)
     return {
       id: `n-${j.jobNo}`, at: i === 0 ? '2 min ago' : `${i * 3 + 1} h ago`, to: 'Scheduling · Brianne D., Zoe P.',
-      title: `Estimate approved — ${surname(j.customer)} ${j.jobNo} is ready to schedule`,
-      body: `Costed by ${j.estimator ?? 'estimating'} · ${j.jobType}` +
+      title: `${surname(j.customer)} ${j.jobNo} is ready to schedule`,
+      body: `Costing complete by ${j.estimator ?? 'estimating'} · ${j.jobType}` +
         (so.length ? ` · ${so.length} special order${so.length > 1 ? 's' : ''} (${[...new Set(so.map(s => s.vendor))].join(', ')})` : ' · no special orders'),
       jobNo: j.jobNo, read: i > 2,
     }
@@ -64,7 +64,7 @@ const seedRun = (): RunItem[] => [
  * Merlin can't yet pick an org's report template).
  */
 export type Attendance = 'on site' | 'called in' | 'off'
-/** 'missed' is proposed — Merlin's Deliveries tab records received or damaged. */
+/** As the app's new Daily Log records a delivery that was due: received, part received, or missed. */
 export type Delivery = 'received' | 'received some' | 'missed'
 export type Report = {
   crew: Record<string, Attendance>
@@ -104,7 +104,26 @@ type Ctx = {
   // daily reports
   reports: Record<string, Report>
   updateReport: (jobNo: string, fn: (r: Report) => Report) => void
+  // navigation — the shell reads these so any screen can deep-link (e.g. "Daily logs" next to a job)
+  route: { mod: string; tab: string }
+  goTo: (mod: string, tab: string) => void
+  /** Operations dashboard view, as Merlin's `/operations/dashboard?view=` */
+  opsView: OpsView
+  setOpsView: (v: OpsView) => void
+  calView: 'week' | 'day'
+  setCalView: (v: 'week' | 'day') => void
+  /** Index into FF_DAYS for the Calendar's Day view. */
+  calDay: number
+  setCalDay: (d: number) => void
+  /** Open the Operations dashboard on a day's board, with the "Add work to this day" tray open. */
+  openTray: (day?: number) => void
+  trayOpen: boolean
+  setTrayOpen: (b: boolean) => void
+  /** Jobs → Daily Logs, opened on one job when it is on the day's board. */
+  dailyLogJob: string | null
+  openDailyLog: (jobNo: string | null) => void
 }
+export type OpsView = 'today' | 'schedule' | 'calendar'
 const C = createContext<Ctx>(null as any)
 export const useStore = () => useContext(C)
 
@@ -118,6 +137,16 @@ export function StoreProvider({ children }: any) {
   const [notifs, setNotifs] = useState<Notif[]>(seedNotifs)
   const [run, setRun] = useState<RunItem[]>(seedRun)
   const [reports, setReports] = useState<Record<string, Report>>({})
+  const [route, setRoute] = useState({ mod: 'operations', tab: 'Dashboard' })
+  const [opsView, setOpsView] = useState<OpsView>('calendar')
+  const [calView, setCalView] = useState<'week' | 'day'>('day')
+  // Open the calendar on the fortnight's busiest day.
+  const [calDay, setCalDay] = useState(() => {
+    const counts = FF_DAYS.map((_, d) => assigns.filter(a => a.day === d && !a.unavailable).length)
+    return counts.indexOf(Math.max(...counts))
+  })
+  const [trayOpen, setTrayOpen] = useState(false)
+  const [dailyLogJob, setDailyLogJob] = useState<string | null>(null)
 
   /** Sutton's rule: shifting a job pushes only THAT CREW's later jobs by the same amount. */
   function computeRipple(list: Assign[], id: string, toDay: number): RippleStep[] {
@@ -181,6 +210,23 @@ export function StoreProvider({ children }: any) {
 
     reports,
     updateReport: (jobNo, fn) => setReports(r => ({ ...r, [jobNo]: fn(r[jobNo] ?? emptyReport()) })),
+
+    route,
+    goTo: (mod, tab) => setRoute({ mod, tab }),
+    opsView, setOpsView,
+    calView, setCalView,
+    calDay, setCalDay,
+    trayOpen, setTrayOpen,
+    openTray: (day) => {
+      if (day != null) setCalDay(day)
+      setOpsView('calendar'); setCalView('day'); setTrayOpen(true)
+      setRoute({ mod: 'operations', tab: 'Dashboard' })
+    },
+    dailyLogJob,
+    openDailyLog: (jobNo) => {
+      setDailyLogJob(jobNo)
+      if (jobNo) setRoute({ mod: 'jobs', tab: 'Daily Logs' })
+    },
   }
   return <C.Provider value={value}>{children}</C.Provider>
 }

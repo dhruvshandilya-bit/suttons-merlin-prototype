@@ -14,7 +14,6 @@ import Jobs from './components/Jobs'
 import Estimate from './components/Estimate'
 import Schedule from './components/Schedule'
 import Procurement from './components/Procurement'
-import OpsDay from './components/OpsDay'
 import Field from './components/Field'
 import Setup from './components/Setup'
 import Inbox from './components/Inbox'
@@ -22,7 +21,7 @@ import Documents from './components/Documents'
 import Phases from './components/Phases'
 import AskAI from './components/AskAI'
 import Notifications from './components/Notifications'
-import ReadyQueue from './components/ReadyQueue'
+import OpsDashboard from './components/ops/OpsDashboard'
 import DailyReports from './components/DailyReports'
 import Budget from './components/Budget'
 
@@ -43,8 +42,8 @@ const MODULES: { key: Mod; label: string; icon: any; group: 'MAIN' | 'COMMUNICAT
     tabs: ['Receivable', 'Payable', 'Budget', 'Report'] },
   { key: 'orders',     label: 'Orders',     icon: Box,           group: 'MAIN', landing: 'Orders',
     tabs: ['Orders', 'Shipping', 'Delivery Drivers', 'Price Management'] },
-  { key: 'operations', label: 'Operations', icon: LayoutList,    group: 'MAIN', landing: 'Schedule',
-    tabs: ['Dashboard', 'Ready to schedule', 'Schedule', 'Day Board', 'Work Orders', 'Templates'] },
+  { key: 'operations', label: 'Operations', icon: LayoutList,    group: 'MAIN', landing: 'Dashboard',
+    tabs: ['Dashboard', 'Work Orders', 'Templates'] },
   { key: 'calendar',   label: 'Calendar',   icon: CalendarDays,  group: 'COMMUNICATION', landing: 'Crew calendar', tabs: ['Crew calendar'] },
   { key: 'emails',     label: 'Emails',     icon: Mail,          group: 'COMMUNICATION', landing: 'Recurring', tabs: ['Recurring', 'Notification matrix'] },
 ]
@@ -52,16 +51,18 @@ const MODULES: { key: Mod; label: string; icon: any; group: 'MAIN' | 'COMMUNICAT
 export default function App() { return <StoreProvider><Shell /></StoreProvider> }
 
 function Shell() {
-  const [mod, setMod] = useState<Mod>('jobs')
-  const [tab, setTab] = useState('Home')
+  // Route lives in the store so any screen can deep-link (Daily logs links, the bell, the tray).
+  const { notifs, route, goTo, openTray } = useStore()
+  const mod = route.mod as Mod
+  const tab = route.tab
+  const setTab = (t: string) => goTo(mod, t)
   const [mobile, setMobile] = useState(false)
   const [panel, setPanel] = useState<'ask' | 'bell' | null>(null)
-  const { notifs } = useStore()
   const m = MODULES.find(x => x.key === mod)
 
   const go = (k: Mod) => {
     const target = MODULES.find(x => x.key === k)
-    setMod(k); setTab(target?.landing ?? '')
+    goTo(k, target?.landing ?? '')
   }
 
   if (mobile) return <MobileFrame onExit={() => setMobile(false)} />
@@ -94,7 +95,7 @@ function Shell() {
           <SideSection>Others</SideSection>
           <AppStoreRow />
           <SideItem icon={Smartphone} label="Field app preview" onClick={() => setMobile(true)} />
-          <SideItem icon={Settings} label="Settings" active={mod === 'settings'} onClick={() => { setMod('settings'); setTab('Org setup') }} />
+          <SideItem icon={Settings} label="Settings" active={mod === 'settings'} onClick={() => goTo('settings', 'Org setup')} />
         </div>
         <UserBlock />
       </aside>
@@ -116,7 +117,7 @@ function Shell() {
         </div>
       </main>
       {panel === 'ask' && <AskAI onClose={() => setPanel(null)} />}
-      {panel === 'bell' && <Notifications onClose={() => setPanel(null)} onOpenJob={() => { setMod('operations'); setTab('Ready to schedule') }} />}
+      {panel === 'bell' && <Notifications onClose={() => setPanel(null)} onOpenJob={() => openTray()} />}
     </div>
   )
 }
@@ -144,13 +145,11 @@ function Route({ mod, tab }: { mod: Mod; tab: string }) {
   if (mod === 'finance') return <Stub title={tab} module="Finance" />
 
   // Operations
-  if (mod === 'operations' && tab === 'Ready to schedule') return <Page title="Ready to schedule" sub="Estimate approved → scheduling — replaces the $0.01 placeholder and the email to Brie"><ReadyQueue /></Page>
-  if (mod === 'operations' && tab === 'Schedule') return <Page title="Schedule" sub="Future Forecast — crew lanes, red/blue/black, same-crew ripple"><Schedule /></Page>
-  if (mod === 'operations' && tab === 'Day Board') return <Page title="Day board" sub="Operations Master — built from the schedule for the next workday, not copied"><OpsDay /></Page>
+  if (mod === 'operations' && tab === 'Dashboard') return <Page title="Operations" sub="Ready to schedule, the schedule and the day board — all on Merlin's Operations dashboard"><OpsDashboard /></Page>
   if (mod === 'operations') return <Stub title={tab} module="Operations" />
 
   if (mod === 'emails') return <Page title="Emails" sub="The six recurring emails"><Inbox /></Page>
-  if (mod === 'calendar') return <Page title="Crew calendar" sub="Future Forecast, by crew"><Schedule /></Page>
+  if (mod === 'calendar') return <Page title="Crew calendar" sub="People's appointments and time off — jobs are on Operations → Dashboard → Calendar"><Schedule /></Page>
   if (mod === 'settings') return <Page title="Org setup" sub="What we loaded from Sutton's files"><Setup /></Page>
   return <Stub title={tab} module={mod} />
 }
@@ -183,7 +182,7 @@ function MobileFrame({ onExit }: any) {
     <div className="h-screen w-screen overflow-auto bg-ink-100">
       <div className="flex items-center gap-2 border-b border-line bg-white px-4 py-2.5">
         <button onClick={onExit} className="rounded-lg border border-line px-2.5 py-1 text-2xs text-ink-600 hover:bg-ink-50">← Back to web app</button>
-        <span className="text-[13px] font-medium text-ink-950">Field app — carpenter folder</span>
+        <span className="text-[13px] font-medium text-ink-950">Merlin field app — what the crew, PMs and drivers use</span>
       </div>
       <Field />
     </div>

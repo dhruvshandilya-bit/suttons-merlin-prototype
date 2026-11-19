@@ -226,8 +226,8 @@ export default function Schedule() {
         <span>
           Drag a job within its own crew row to reschedule. With ripple on, every later job for
           <b className="text-ink-700"> that crew only</b> shifts by the same number of days — other crews are untouched.
-          Click any job to change its status. Red / blue / black are <b className="text-warn-700">proposed</b> schedule states with your own legend and
-          colours — Merlin's configurable stages cover appointments only today. Called-in, vacation and weather cells would come from each morning's site report. All {LANES.length} lanes and every cell are read from
+          Click any job to change its status. Red / blue / black come from two steps on each job's work order (<b className="text-info-600">in build</b>), with your own legend and
+          colours. Called-in, vacation and weather cells come from time off and the morning site report. All {LANES.length} lanes and every cell are read from
           <b className="text-ink-700"> Future Forecast → Project Scheduling 2026</b>.
         </span>
       </div>

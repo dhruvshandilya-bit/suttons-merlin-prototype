@@ -20,14 +20,12 @@ Registered in `Merlin/.claude/launch.json` as `suttons-prototype`.
 | **Dashboard** | Job Status → `Scorecard` | Their own portfolio counts, AR ageing and **% Not Costed** (87 of 202 jobs, 43%) surfaced as the headline constraint |
 | **Jobs** | Job Status → `JNS` / `WIP` / `AR` | 69 real jobs with Service Type, Job Type, GP, **Zone** and **Permit Status** — two columns nobody mentioned on the call |
 | **Estimating** | Master Costing | 100 real rate-card lines across SDG and RFG, **one price per crew**, live cost→sell→GP, and their three-tier margin approval |
-| **Schedule** | Future Forecast | 84 crew lanes in 12 bands, red/blue/black states, PM initials, and **same-crew ripple** |
-| **Ready to schedule** | the $0.01 placeholder + email to Brie | Estimate approved → scheduling, with special orders, ETAs and earliest start; plug a job into a crew lane |
-| **Day board** | Operations Master | Built from the schedule; crew assignments, Plan A/B, 7 PM routes, the warehouse run as a dispatch list, trailers |
+| **Operations → Dashboard** | Future Forecast, the $0.01 placeholder, Operations Master | Merlin's `/operations/dashboard`: **Today**, **Schedule** (84 crew lanes, red/blue/black, same-crew ripple) and **Calendar** (week grid; Day = the day board with the *Add work to this day* tray, i.e. Ready to schedule) |
 | **Daily Logs** | Operations Master's "Work in progress — next steps" block + CompanyCam | Morning/evening site reports per job, required photos, Combined Daily Logs |
 | **Budget** | WIP's empty Cost to Date column | Project actuals — estimated vs actual cost |
-| **Ask AI** | Project Forecasting tab | Weeks out by project type, ready-to-schedule, warehouse run, attendance, today's field report |
+| **Ask AI** | Project Forecasting tab, the warehouse run block | Weeks out by project type, ready-to-schedule, **tomorrow's warehouse run**, attendance, today's field report |
 | **Procurement** | Special Order Materials + the 3 weekly vendor emails | 86 real POs with status, delivery route and verification; vendor delivery schedule with acknowledgement |
-| **Field app** | The carpenter folder email | Starrick 1401-26 as a phone screen — scope checklist, PO, progress payment, install links, AP terms, reschedule notice |
+| **Field app** | The carpenter folder email, CompanyCam, call-ins | My day (5 pm plan) · Work order · Daily log · Materials (truck load/return) · Photos (Bespoke before/after) · Time off |
 | **Org setup** | — | Exactly what gets loaded into Merlin, and the two open questions |
 
 ---
@@ -48,33 +46,31 @@ job and re-runs the approval tier live — 42.5% target, manager below it, owner
 
 ---
 
-## After the 23 Oct operations call with Zoe
+## The final setup (19 Nov 2026)
 
-Zoe walked the flow from "estimate done" to "crew on site". Each step below is now in the prototype, using
-Merlin's own names where it has the feature. Anything marked **Proposed** in the Merlin surface column is not in
-Merlin yet (checked against `origin/main` of `ether-web-v1`, `ether-server` and `merlin-flutter` on 18 Nov 2026); the
-prototype labels it *Proposed* on screen too.
+Every Sutton's job from the calls now lives on an existing Merlin surface — no new screens. What the prototype shows:
 
-| What Zoe described | What it is today | In the prototype | Merlin surface |
-|---|---|---|---|
-| Estimator types **$0.01** (or their initials) in Estimated Cost to say "paperwork's in"; Brie keys the real cost into QuickBooks; Zoe waits for the cell to change | 5 live JNS rows carry a placeholder (`$0.01` ×1, `DP` ×3, `GM` ×1) | **Operations → Ready to schedule**, a **Ready to schedule** column on Project Phases, a Stage column on Jobs → Home, and the **bell** | **Proposed:** Estimate Approved notification to scheduling (the type exists in Merlin but nothing sends it; in-app and push only); a Project Phase added in Phase Config |
-| Zoe checks Special Order Materials by hand for lead times | Separate workbook | Each ready job lists its special-order POs with status/ETA; **earliest start** = later of crew backlog and vendor ETA | PO `expectedArrivalAt` |
-| Materials sit at the vendor; scheduling calls them to the job site when ready | Phone / email | **Call for delivery** on POs that are *Ready at Vendor*, once the job is plugged in | PO delivery mode + supplier digest |
-| **Project Forecasting** tab, sent company-wide monthly — weeks out = JNS count ÷ jobs/week, next date = today + weeks × 7, seasonal blackouts | Formula tab | **No screen** (Dhruv's call). **Ask AI → "How many weeks out are we?"** runs the same formula, with jobs/week editable and the blackout shift, then drafts the monthly email for a human to send | Ask AI (plan-then-confirm for writes) |
-| Red / blue / black on Future Forecast | Font colour | Legend now uses Zoe's exact words; job drawer has a **Before it turns black** checklist (customer date · special orders · vendor delivery · dumpster) | **Proposed:** schedule states — configurable stages exist for appointments only |
-| Future Forecast also logs **called in / vacation / rain / cold** for production | Typed into cells | Those cells now render as attendance/weather markers; **Ask AI → "Who called in?"** reads them | Morning site report + Impacts (weather delay) |
-| Friday: copy Monday's jobs from Future Forecast into a new **Operations Master** tab; Brie emails each PM and carpenter their plan | Manual copy + email per job | **Day Board** says it's built from the schedule; **Send day plan** pushes each person's day to their phone | **Proposed:** a day plan and its message — today work orders notify one at a time |
-| PMs fill in their own day plan on Operations Master, but the "Work in progress — next steps" block — "no one fills that part out" | Next steps go into MarketSharp as a note | Day Board PM routes are read from each PM's day-plan column; the next step lives on each job's evening report | Daily Logs |
-| Deliveries block is the driver's checklist; warehouse manager reorders by importance and assigns drivers | Checkbox column | **Warehouse run** — reorder, assign driver, Pending → Dispatched → Delivered | Delivery drivers / shipments |
-| **CompanyCam**: before/during/after, pre-existing damage, start and end of every day — no written rule | Habit | **Jobs → Daily Logs**: Morning and Evening site reports per job with **required photos**; **Combined Daily Logs** for the day; same form in the field app's **Daily log** tab; photo-required steps on the work order | Daily Logs, site reports (morning 10:00 / evening 18:00), Before & After gallery. **Proposed:** required photos via Sutton's own report template (Merlin has required image fields, but no setting picks an org's template yet); a "missed" delivery status (Merlin records received or damaged) |
-| Estimated cost ≠ actual cost (miscut 2×4s aren't chargeable) | Actuals in QuickBooks; WIP's Cost to Date column is empty on all rows | **Finance → Budget** as Project Actuals — budget from the estimate, actual from bills, variance, plus Zoe's 2×4 example (labelled) | Project Actuals |
+| Job | Where it lives in Merlin | Status |
+|---|---|---|
+| Ready to schedule | **Operations → Dashboard → Calendar → Day → *Add work to this day*** — Merlin's unscheduled tray, costed jobs first, each with *Costed*, *Special orders due* (warns when the day is earlier) and a **Daily logs** link. When the estimate is marked costing complete, the job moves to the "Ready to schedule" phase and scheduling gets a bell, push and email. | In build |
+| Plug a job in | **Book it here** on a tray row → pick the crew → it lands on the day, red | Merlin today (placing tray work) |
+| The schedule | **Operations → Dashboard → Schedule** (crew timeline, same-crew ripple) and **Calendar** (week / day) | Merlin today; crews set up as stations |
+| Red / blue / black | Read from two steps on each job's work order: *Confirm date with customer* (→ blue), *Set up materials* (→ black) | In build |
+| The day board | **Calendar → Day**: one column per trade (or per PM), each job a card, plus crew time off, special orders due and equipment out. Nobody copies a sheet. | Merlin today; PM grouping proposed |
+| Tell the PM and crew | Each person gets their jobs for the next business day as one push at 5 pm | In build |
+| Warehouse run | **Ask AI → "Plan tomorrow's warehouse run"** — ordered stops, reorder, review & send | Ask AI today; sending to the driver proposed |
+| Daily Logs next to jobs | **Daily logs** link on tray rows, day-board cards and the calendar | In build |
+| Site reports, photos, next steps | **Jobs → Daily Logs** and the field app: morning and evening reports on Sutton's own template (required photos, absence reason, next steps); Bespoke before/after photos | Merlin today; template setting in build |
+| Deliveries on the Daily Log | POs due that day listed as *expected*, marked received / part / missed | In build (the app already has the statuses) |
+| Attendance | Time off: Leave, Overtime + **Called in, Sick, Vacation** | New types in build |
+| Truck materials | Field app **Materials**: morning load, evening return, office approves | In the app (develop) |
+| Forecast | **Ask AI → "How many weeks out are we?"** | Ask AI today |
+| True cost | **Finance → Budget** (Project Actuals from QuickBooks bills, receipts, labour) | Merlin today; overrun reason and sub draws to discuss |
 
-**Also:** the earlier pseudonymising pass had renamed "Sutton's" to a fake surname in three Operations
-Master labels, which filed every Sutton's delivery under pick-ups. Fixed in `suttons-raw.json`.
+**In build** = code written for Merlin on 19 Nov 2026, not yet released. **Proposed** = agreed, not started.
 
-**Not in Merlin today, so shown as configuration, not as product:** a "called in" attendance status
-(Sutton's morning site report asks it as a question), and a built-in "ready to schedule" state (it's a
-Project Phase). Ask AI's answers here are computed in the browser from the loaded data.
+**History:** the first pass after the 23 Oct call put Ready to schedule, the Day board and the warehouse run on their own
+tabs. They moved onto Merlin's Operations dashboard and Ask AI on 19 Nov; those tabs are gone.
 
 ---
 

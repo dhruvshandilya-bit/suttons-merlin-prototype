@@ -41,8 +41,11 @@ const Compliance = ({ done, label }: { done: boolean; label: string }) =>
  * the roll-up of each job's site reports — no one types the Operations Master grid.
  */
 export default function DailyReports() {
-  const { reports } = useStore()
-  const [open, setOpen] = useState<DayJob | null>(null)
+  const { reports, dailyLogJob, openDailyLog } = useStore()
+  // Arriving from a "Daily logs" link next to a job: open that job's report when it is on today's board.
+  const [open, setOpenState] = useState<DayJob | null>(() => DAY_JOBS.find(j => j.jobNo === dailyLogJob) ?? null)
+  const setOpen = (j: DayJob | null) => { setOpenState(j); if (!j && dailyLogJob) openDailyLog(null) }
+  const notOnBoard = !!dailyLogJob && !DAY_JOBS.some(j => j.jobNo === dailyLogJob)
   const r = (j: DayJob) => reports[j.jobNo] ?? emptyReport()
 
   const submitted = DAY_JOBS.filter(j => r(j).morning).length + DAY_JOBS.filter(j => r(j).evening).length
@@ -54,11 +57,17 @@ export default function DailyReports() {
 
   return (
     <div className="space-y-4">
+      {notOnBoard && (
+        <div className="flex items-center gap-2 rounded-xl border border-line bg-white px-4 py-2.5 text-2xs text-ink-600">
+          <span>Job <b className="tnum">{dailyLogJob}</b> has no crew on this day's board, so it has no site reports yet. In Merlin the link opens that job's own Daily Logs.</span>
+          <button onClick={() => openDailyLog(null)} className="ml-auto text-brand-400 hover:underline">Dismiss</button>
+        </div>
+      )}
       <div className="grid grid-cols-2 gap-3 lg:grid-cols-5">
         <Stat label="Site reports" value={`${submitted} / ${DAY_JOBS.length * 2}`} sub={`morning due ${DUE.morning} · evening ${DUE.evening}`} />
         <Stat label="Personnel on site" value={onSite} sub={calledIn.length ? `${calledIn.length} called in: ${calledIn.slice(0, 2).map(c => c.trim()).join(', ')}` : 'from morning check-in'} />
         <Stat label="Missing required photos" value={photoGaps} tone={photoGaps ? 'danger' : undefined} sub="jobs short a before / after / damage photo" />
-        <Stat label="Deliveries missed" value={missed.length} tone={missed.length ? 'danger' : undefined} sub="proposed status — Merlin records received or damaged today" />
+        <Stat label="Deliveries missed" value={missed.length} tone={missed.length ? 'danger' : undefined} sub="POs due today, marked by the crew in the app's Daily Log" />
         <Stat label="Impacts" value={impacts.length} sub={impacts.length ? impacts.map(j => `${j.name} · ${r(j).impact}`).slice(0, 2).join(', ') : 'weather delays flagged by crews'} />
       </div>
 
@@ -272,7 +281,7 @@ export function ReportForm({ j }: { j: DayJob }) {
                         className={cn('rounded-md border px-1.5 py-0.5 text-[10px] font-medium capitalize',
                           rep.received[d.key] === v
                             ? v === 'received' ? 'border-ok-500 bg-ok-50 text-ok-700' : 'border-warn-500 bg-warn-50 text-warn-700'
-                            : 'border-line text-ink-500 hover:bg-ink-50')}>{v}{v === 'missed' && <span className="ml-1 normal-case text-warn-700">· proposed</span>}</button>
+                            : 'border-line text-ink-500 hover:bg-ink-50')}>{v}</button>
                     ))}
                   </div>
                 </div>
