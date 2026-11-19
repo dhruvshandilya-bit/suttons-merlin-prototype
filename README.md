@@ -46,6 +46,8 @@ job and re-runs the approval tier live — 42.5% target, manager below it, owner
 
 ---
 
+**Earlier version:** the prototype as it stood before the move onto Merlin's Operations dashboard (commit `391beaf`, 18 Nov 2026) is kept at [/suttons-merlin-prototype/v1/](https://dhruvshandilya-bit.github.io/suttons-merlin-prototype/v1/). It is a frozen build in `public/v1/`; rebuild it from that commit with `vite build --base=/suttons-merlin-prototype/v1/ --outDir public/v1`.
+
 ## The final setup (19 Nov 2026)
 
 Every Sutton's job from the calls now lives on an existing Merlin surface — no new screens. What the prototype shows:
